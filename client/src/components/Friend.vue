@@ -1,9 +1,13 @@
 <script setup lang="ts">
+
 </script>
 
 <template>
-  <RouterView />
+  <div>
+    好友列表
+  </div>
 </template>
 
 <style scoped>
+
 </style>

@@ -1,9 +1,13 @@
 <script setup lang="ts">
+
 </script>
 
 <template>
-  <RouterView />
+  <div>
+    聊天主页
+  </div>
 </template>
 
 <style scoped>
+
 </style>
