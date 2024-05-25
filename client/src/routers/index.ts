@@ -11,6 +11,7 @@ const routes: RouteRecordRaw[] = [
         path: '/chatroom',
         name: 'chatroom',
         component: () => import('@/views/chatroom.vue'),
+        props: true,
       },
     ],
   },
