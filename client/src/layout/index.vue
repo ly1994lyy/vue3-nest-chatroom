@@ -2,11 +2,13 @@
 import { computed, onMounted, ref } from 'vue'
 import { io } from 'socket.io-client'
 import { useMessage } from 'naive-ui'
+import { useRouter } from 'vue-router'
 import Friend from '@/components/Friend.vue'
 import type { IMsg, IMsgBox, IServerMSg, onlineUser } from '@/types/model'
 
 const socket = io('http://localhost:9000')
 const message = useMessage()
+const router = useRouter()
 
 socket.on('connect', () => {
   message.success('连接成功')
@@ -63,6 +65,11 @@ function serverSendMsg(message: IServerMSg) {
 
 const currentMsgList = computed(() => msgList.value.find(e => e.userId === currentMsgUser.value.id)?.msgList || [])
 
+function logout() {
+  socket.emit('offline', currentUser.value.id)
+  router.push('/login')
+}
+
 onMounted(() => {
   currentUser.value = {
     username: history.state.username as string,
@@ -87,7 +94,12 @@ onMounted(() => {
         <Friend :online-user="onlineUserList" :current-msg-user="currentMsgUser" @set-current-msg-user="setCurrentMsgUser" />
       </n-layout-sider>
       <n-layout>
-        <n-layout-header>当前用户:{{ currentUser.username }},id为{{ currentUser.id }}</n-layout-header>
+        <n-layout-header>
+          当前用户:{{ currentUser.username }},id为{{ currentUser.id }}
+          <n-button type="success" @click="logout">
+            退出当前聊天室
+          </n-button>
+        </n-layout-header>
         <n-layout-content content-style="padding: 24px;">
           <RouterView :current-msg-user="currentMsgUser" :socket="socket" :current-msg-list="currentMsgList" @local-send-msg="localSendMsg" @server-send-msg="serverSendMsg" />
         </n-layout-content>
