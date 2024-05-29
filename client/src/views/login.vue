@@ -26,9 +26,13 @@ async function login() {
 </script>
 
 <template>
-  <div class="login-container">
-    <div class="login-box">
-      <h1>在线聊天室</h1>
+  <div class="f-center items-center w-screen h-screen bg-gray-100">
+    <div class="w-400 h-500 bg-white rounded-20 f-center flex-col">
+      <h1
+        p="y-20" text="40 amber" font="bold"
+      >
+        在线聊天室
+      </h1>
       <n-form :label-width="80" :model="formValue">
         <n-form-item label="姓名" path="user.name">
           <n-input v-model:value="formValue.username" placeholder="输入姓名" />

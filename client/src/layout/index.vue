@@ -65,10 +65,10 @@ function serverSendMsg(message: IServerMSg) {
 
 const currentMsgList = computed(() => msgList.value.find(e => e.userId === currentMsgUser.value.id)?.msgList || [])
 
-function logout() {
-  socket.emit('offline', currentUser.value.id)
-  router.push('/login')
-}
+// function logout() {
+//   socket.emit('offline', currentUser.value.id)
+//   router.push('/login')
+// }
 
 onMounted(() => {
   currentUser.value = {
@@ -88,7 +88,26 @@ onMounted(() => {
 </script>
 
 <template>
-  <n-space vertical size="large">
+  <div class="fullscreen flex">
+    <div class="h-full w-300 flex flex-col">
+      <div class="h-60 bg-blue">
+        搜素
+      </div>
+      <div class="flex-1">
+        <div class="p-20">
+          <Friend :online-user="onlineUserList" :current-msg-user="currentMsgUser" @set-current-msg-user="setCurrentMsgUser" />
+        </div>
+      </div>
+      <div class="h-60 bg-blue">
+        <div>setting</div>
+      </div>
+    </div>
+
+    <div class="flex-1 flex flex-col">
+      <RouterView :current-msg-user="currentMsgUser" :socket="socket" :current-msg-list="currentMsgList" @local-send-msg="localSendMsg" @server-send-msg="serverSendMsg" />
+    </div>
+  </div>
+  <!-- <n-space vertical size="large">
     <n-layout has-sider>
       <n-layout-sider content-style="padding: 24px;">
         <Friend :online-user="onlineUserList" :current-msg-user="currentMsgUser" @set-current-msg-user="setCurrentMsgUser" />
@@ -105,7 +124,7 @@ onMounted(() => {
         </n-layout-content>
       </n-layout>
     </n-layout>
-  </n-space>
+  </n-space> -->
 </template>
 
 <style scoped>

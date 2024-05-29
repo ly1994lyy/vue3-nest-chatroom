@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { Socket } from 'socket.io-client'
 import { onMounted, ref } from 'vue'
+import { Send } from '@vicons/ionicons5'
 import type { IMsg } from '@/types/model'
 
 interface IProp {
@@ -51,21 +52,34 @@ onMounted(() => {
 </script>
 
 <template>
-  <div v-if="currentMsgUser.id">
-    <n-card :title="`当前正和${currentMsgUser.username}聊天`">
-      <div v-for="(i, index) in currentMsgList" :key="index">
-        <div>{{ i.formUsername }}({{ i.sendTime }}):</div>
-        <div>{{ i.msg }}</div>
+  <div class="h-60 b-b-solid b-b-2 border-b-coolGray flex items-center px-20 justify-between">
+    <div class="flex items-center">
+      <n-avatar
+        round
+        size="small"
+        src="https://07akioni.oss-cn-beijing.aliyuncs.com/07akioni.jpeg"
+      />
+      <div class="ml-10">
+        {{ currentMsgUser.username }}
       </div>
-    </n-card>
-    <n-input
-      v-model:value="msg"
-      type="textarea"
-      placeholder="输入聊天内容"
-    />
-    <n-button type="primary" @click="send">
-      发送
-    </n-button>
+    </div>
+  </div>
+  <div class="flex-1 p-20">
+    <div v-for="(i, index) in currentMsgList" :key="index" class="my-10">
+      <div :class="`flex ${i.formUsername === 'you' ? 'flex-row-reverse' : ''}`">
+        {{ i.formUsername }}({{ i.sendTime }}):
+      </div>
+      <div :class="`flex ${i.formUsername === 'you' ? 'flex-row-reverse' : ''}`">
+        {{ i.msg }}
+      </div>
+    </div>
+  </div>
+  <div class="h-60 px-20 flex items-center">
+    <n-input v-model:value="msg" round placeholder="发送信息" @keyup.enter="send">
+      <template #suffix>
+        <n-icon :component="Send" />
+      </template>
+    </n-input>
   </div>
 </template>
 
