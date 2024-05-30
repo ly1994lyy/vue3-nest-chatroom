@@ -3,6 +3,7 @@ import type { Socket } from 'socket.io-client'
 import { onMounted, ref } from 'vue'
 import { Send } from '@vicons/ionicons5'
 import type { IMsg } from '@/types/model'
+import { formateDataTime } from '@/utils/data'
 
 interface IProp {
   currentMsgUser: {
@@ -31,13 +32,13 @@ function send() {
     fromUsername: currentUser.value.username,
     fromUserId: currentUser.value.id,
     toUserId: props.currentMsgUser.id,
-    sendTime: new Date().getTime(),
+    sendTime: formateDataTime(new Date().getTime()),
     msg: msg.value,
   })
   emits('localSendMsg', {
     formUsername: 'you',
     toUserId: props.currentMsgUser.id,
-    sendTime: new Date().getTime(),
+    sendTime: formateDataTime(new Date().getTime()),
     msg: msg.value,
   })
   msg.value = ''
@@ -52,7 +53,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="h-60 b-b-solid b-b-2 border-b-coolGray flex items-center px-20 justify-between">
+  <div v-if="currentMsgUser.id" class="h-60 b-b-solid b-b-2 border-b-coolGray flex items-center px-20 justify-between">
     <div class="flex items-center">
       <n-avatar
         round
@@ -64,7 +65,7 @@ onMounted(() => {
       </div>
     </div>
   </div>
-  <div class="flex-1 p-20">
+  <div v-if="currentMsgUser.id" class="flex-1 p-20">
     <div v-for="(i, index) in currentMsgList" :key="index" class="my-10">
       <div :class="`flex ${i.formUsername === 'you' ? 'flex-row-reverse' : ''}`">
         {{ i.formUsername }}({{ i.sendTime }}):
@@ -74,7 +75,7 @@ onMounted(() => {
       </div>
     </div>
   </div>
-  <div class="h-60 px-20 flex items-center">
+  <div v-if="currentMsgUser.id" class="h-60 px-20 flex items-center">
     <n-input v-model:value="msg" round placeholder="发送信息" @keyup.enter="send">
       <template #suffix>
         <n-icon :component="Send" />

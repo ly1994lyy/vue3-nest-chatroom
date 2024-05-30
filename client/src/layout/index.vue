@@ -99,7 +99,7 @@ onMounted(() => {
         </n-input>
       </div>
       <div class="flex-1">
-        <div class="p-20">
+        <div>
           <Friend :online-user="onlineUserList" :current-msg-user="currentMsgUser" @set-current-msg-user="setCurrentMsgUser" />
         </div>
       </div>
