@@ -3,6 +3,7 @@ import { computed, onMounted, ref } from 'vue'
 import { io } from 'socket.io-client'
 import { useMessage } from 'naive-ui'
 import { useRouter } from 'vue-router'
+import { Search, Settings } from '@vicons/ionicons5'
 import Friend from '@/components/Friend.vue'
 import type { IMsg, IMsgBox, IServerMSg, onlineUser } from '@/types/model'
 
@@ -65,10 +66,10 @@ function serverSendMsg(message: IServerMSg) {
 
 const currentMsgList = computed(() => msgList.value.find(e => e.userId === currentMsgUser.value.id)?.msgList || [])
 
-// function logout() {
-//   socket.emit('offline', currentUser.value.id)
-//   router.push('/login')
-// }
+function logout() {
+  socket.emit('offline', currentUser.value.id)
+  router.push('/login')
+}
 
 onMounted(() => {
   currentUser.value = {
@@ -89,17 +90,32 @@ onMounted(() => {
 
 <template>
   <div class="fullscreen flex">
-    <div class="h-full w-300 flex flex-col">
-      <div class="h-60 bg-blue">
-        搜素
+    <div class="h-full w-300 flex flex-col b-r-solid b-r-1 border-r-coolGray">
+      <div class="h-60 flex items-center px-20">
+        <n-input>
+          <template #suffix>
+            <n-icon :component="Search" />
+          </template>
+        </n-input>
       </div>
       <div class="flex-1">
         <div class="p-20">
           <Friend :online-user="onlineUserList" :current-msg-user="currentMsgUser" @set-current-msg-user="setCurrentMsgUser" />
         </div>
       </div>
-      <div class="h-60 bg-blue">
-        <div>setting</div>
+      <div class="h-60 flex items-center justify-between p-20 bg-light">
+        <div>
+          <n-avatar
+            round
+            size="small"
+            src="https://07akioni.oss-cn-beijing.aliyuncs.com/07akioni.jpeg"
+          />
+        </div>
+        <n-button circle @click="logout">
+          <template #icon>
+            <n-icon :component="Settings" />
+          </template>
+        </n-button>
       </div>
     </div>
 
@@ -107,39 +123,6 @@ onMounted(() => {
       <RouterView :current-msg-user="currentMsgUser" :socket="socket" :current-msg-list="currentMsgList" @local-send-msg="localSendMsg" @server-send-msg="serverSendMsg" />
     </div>
   </div>
-  <!-- <n-space vertical size="large">
-    <n-layout has-sider>
-      <n-layout-sider content-style="padding: 24px;">
-        <Friend :online-user="onlineUserList" :current-msg-user="currentMsgUser" @set-current-msg-user="setCurrentMsgUser" />
-      </n-layout-sider>
-      <n-layout>
-        <n-layout-header>
-          当前用户:{{ currentUser.username }},id为{{ currentUser.id }}
-          <n-button type="success" @click="logout">
-            退出当前聊天室
-          </n-button>
-        </n-layout-header>
-        <n-layout-content content-style="padding: 24px;">
-          <RouterView :current-msg-user="currentMsgUser" :socket="socket" :current-msg-list="currentMsgList" @local-send-msg="localSendMsg" @server-send-msg="serverSendMsg" />
-        </n-layout-content>
-      </n-layout>
-    </n-layout>
-  </n-space> -->
 </template>
 
-<style scoped>
-.n-layout-header{
-  background: rgba(128, 128, 128, 0.2);
-  padding: 24px;
-}
-
-.n-layout-sider {
-  background: rgba(128, 128, 128, 0.3);
-  height: 100vh;
-}
-
-.n-layout-content {
-  background: rgba(128, 128, 128, 0.4);
-  height: calc(100vh - 70px);
-}
-</style>
+<style scoped></style>

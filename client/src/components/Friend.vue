@@ -28,12 +28,5 @@ const emits = defineEmits(['setCurrentMsgUser'])
 </template>
 
 <style lang="less" scoped>
-.online-user{
-  border-bottom: 1px solid #534f4f;
-  margin: 10px 0;
-  .socket-id{
-    font-size: 12px;
-    color: #999;
-  }
-}
+
 </style>
