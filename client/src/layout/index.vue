@@ -39,8 +39,15 @@ function setCurrentMsgUser(user: { username: string, id: string }) {
 
 function localSendMsg(msg: IMsg) {
   const user = msgList.value.find(e => e.userId === currentMsgUser.value.id)
-  if (user)
+  if (user) {
     user.msgList.push(msg)
+  }
+  else {
+    msgList.value.push({
+      userId: currentMsgUser.value.id,
+      msgList: [msg],
+    })
+  }
 }
 
 function serverSendMsg(message: IServerMSg) {
