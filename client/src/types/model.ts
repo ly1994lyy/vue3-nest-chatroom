@@ -2,6 +2,7 @@ export interface onlineUser {
   username: string
   id: string
   socketId: number
+  avatar: string
 }
 
 export interface IMsg {

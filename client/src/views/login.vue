@@ -17,8 +17,9 @@ async function login() {
     const res = await loginApi(formValue.value)
     const username = res.data.user.username
     const id = res.data.user.id
-    store.setUser({ username, id })
-    router.push({ name: 'chatroom', state: { username, id } })
+    const avatar = res.data.user.avatar
+    store.setUser({ username, id, avatar })
+    router.push({ name: 'chatroom', state: { username, id, avatar } })
   }
   catch (error) {
   }

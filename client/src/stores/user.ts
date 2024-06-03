@@ -3,6 +3,7 @@ import { defineStore } from 'pinia'
 interface User {
   username: string
   id: string
+  avatar: string
 }
 
 export const useUserStore = defineStore('user', {
@@ -10,13 +11,14 @@ export const useUserStore = defineStore('user', {
     return {
       user: {
         username: '',
-        id: ''
-      }
+        id: '',
+        avatar: '',
+      },
     }
   },
   actions: {
     setUser(user: User) {
       this.user = user
-    }
-  }
+    },
+  },
 })

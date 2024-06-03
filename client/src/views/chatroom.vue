@@ -9,6 +9,7 @@ interface IProp {
   currentMsgUser: {
     username: string
     id: string
+    avatar: string
   }
   socket: Socket
   currentMsgList: IMsg[]
@@ -25,6 +26,7 @@ props.socket.on('receiveMsg', (data) => {
 const currentUser = ref({
   username: '',
   id: '',
+  avatar: '',
 })
 
 function send() {
@@ -48,6 +50,7 @@ onMounted(() => {
   currentUser.value = {
     username: history.state.username as string,
     id: history.state.id as string,
+    avatar: history.state.avatar as string,
   }
 })
 </script>
@@ -58,7 +61,7 @@ onMounted(() => {
       <n-avatar
         round
         size="small"
-        src="https://07akioni.oss-cn-beijing.aliyuncs.com/07akioni.jpeg"
+        :src="currentMsgUser.avatar"
       />
       <div class="ml-10">
         {{ currentMsgUser.username }}

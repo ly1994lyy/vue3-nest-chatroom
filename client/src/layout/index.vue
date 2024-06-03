@@ -18,14 +18,18 @@ socket.on('connect', () => {
 const currentUser = ref({
   username: '',
   id: '',
+  avatar: '',
 })
 // 当前聊天窗口的对象用户
 const currentMsgUser = ref({
   username: '',
   id: '',
+  avatar: '',
 })
 // 所有在线用户的集合
 const onlineUserList = ref<onlineUser[]>([])
+// 所有联系人
+const friends = ref<onlineUser[]>([])
 // 和当前登录用户的所有聊天记录集合
 const msgList = ref<IMsgBox[]>([] as IMsgBox[])
 
@@ -33,7 +37,7 @@ socket.on('onlineUserList', (data: onlineUser[]) => {
   onlineUserList.value = data.filter(i => i.id !== currentUser.value.id)
 })
 
-function setCurrentMsgUser(user: { username: string, id: string }) {
+function setCurrentMsgUser(user: { username: string, id: string, avatar: string }) {
   currentMsgUser.value = user
 }
 
@@ -82,10 +86,11 @@ onMounted(() => {
   currentUser.value = {
     username: history.state.username as string,
     id: history.state.id as string,
+    avatar: history.state.avatar as string,
   }
   socket.emit('online', currentUser.value, (data: { data: onlineUser[] }) => {
-    onlineUserList.value = data.data.filter(i => i.id !== currentUser.value.id)
-    onlineUserList.value.forEach((e) => {
+    friends.value = data.data.filter(i => i.id !== currentUser.value.id)
+    friends.value.forEach((e) => {
       msgList.value.push({
         userId: e.id,
         msgList: [],
@@ -107,7 +112,7 @@ onMounted(() => {
       </div>
       <div class="flex-1">
         <div>
-          <Friend :online-user="onlineUserList" :current-msg-user="currentMsgUser" @set-current-msg-user="setCurrentMsgUser" />
+          <Friend :friends="friends" :current-msg-user="currentMsgUser" @set-current-msg-user="setCurrentMsgUser" />
         </div>
       </div>
       <div class="h-60 flex items-center justify-between p-20 bg-light">
@@ -115,7 +120,7 @@ onMounted(() => {
           <n-avatar
             round
             size="small"
-            src="https://07akioni.oss-cn-beijing.aliyuncs.com/07akioni.jpeg"
+            :src="currentUser.avatar"
           />
         </div>
         <n-button circle @click="logout">
