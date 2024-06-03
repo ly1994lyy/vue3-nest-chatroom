@@ -28,9 +28,9 @@ export class UserService {
     return this.user.find();
   }
 
-  findOne(id: number) {
+  findOneById(id: bigint) {
     return this.user.findOne({
-      where: {},
+      where: { id },
     });
   }
 

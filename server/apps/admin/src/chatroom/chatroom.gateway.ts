@@ -7,8 +7,14 @@ import {
 } from '@nestjs/websockets';
 import { ChatroomService } from './chatroom.service';
 import { Server, Socket } from 'socket.io';
-import { onlineUserDto, sendMsgType, userInfoDto } from './dto/chatroom.model';
+import {
+  addFriendType,
+  onlineUserDto,
+  sendMsgType,
+  userInfoDto,
+} from './dto/chatroom.model';
 import * as process from 'process';
+import { FriendshipService } from '../friendship/friendship.service';
 
 @WebSocketGateway({
   cors: {
@@ -20,27 +26,31 @@ export class ChatroomGateway {
 
   @WebSocketServer()
   server: Server;
-  constructor(private readonly chatroomService: ChatroomService) {}
+  constructor(
+    private readonly chatroomService: ChatroomService,
+    private readonly friendshipService: FriendshipService,
+  ) {}
 
   @SubscribeMessage('online')
-  online(
+  async online(
     @MessageBody() onlineUser: userInfoDto,
     @ConnectedSocket() client: Socket,
   ) {
     const user = this.onlineUserList.find((e) => e.id === onlineUser.id);
+    const friends = await this.friendshipService.getFriends(onlineUser.id);
     if (user) {
       user.socketId = client.id;
     } else {
       this.onlineUserList.push({ ...onlineUser, socketId: client.id });
     }
-    client.broadcast.emit('onlineUserList', this.onlineUserList);
+    // client.broadcast.emit('onlineUserList', this.onlineUserList);
     return {
-      data: this.onlineUserList.filter((e) => e.id !== onlineUser.id),
+      data: friends,
     };
   }
 
   @SubscribeMessage('offline')
-  offline(@MessageBody() id: string, @ConnectedSocket() client: Socket) {
+  offline(@MessageBody() id: bigint, @ConnectedSocket() client: Socket) {
     const user = this.onlineUserList.find((e) => e.id === id);
     if (user) {
       this.onlineUserList = this.onlineUserList.filter((e) => e.id !== id);
@@ -61,5 +71,10 @@ export class ChatroomGateway {
         sendTime: sendInfo.sendTime,
       });
     }
+  }
+
+  @SubscribeMessage('addFriend')
+  addFriend(@MessageBody() add: addFriendType) {
+    console.log(add.friendId);
   }
 }

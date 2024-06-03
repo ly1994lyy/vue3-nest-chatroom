@@ -1,14 +1,19 @@
 export type userInfoDto = {
   username: string;
-  id: string;
+  id: bigint;
 };
 
 export type onlineUserDto = userInfoDto & { socketId: string };
 
 export type sendMsgType = {
   fromUsername: string;
-  fromUserId: string;
-  toUserId: string;
+  fromUserId: bigint;
+  toUserId: bigint;
   sendTime: Date;
   msg: string;
+};
+
+export type addFriendType = {
+  userId: bigint;
+  friendId: bigint;
 };
