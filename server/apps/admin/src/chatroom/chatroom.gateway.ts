@@ -1,4 +1,4 @@
-import { UserService } from './../user/user.service';
+import { UserService } from '../user/user.service';
 import {
   WebSocketGateway,
   SubscribeMessage,

@@ -4,9 +4,10 @@ import { ChatroomGateway } from './chatroom.gateway';
 import { FriendshipModule } from '../friendship/friendship.module';
 import { UserModule } from '../user/user.module';
 import { MessageModule } from '../message/message.module';
+import { RedisService } from './redis.service';
 
 @Module({
   imports: [FriendshipModule, UserModule, MessageModule],
-  providers: [ChatroomGateway, ChatroomService],
+  providers: [ChatroomGateway, ChatroomService, RedisService],
 })
 export class ChatroomModule {}
