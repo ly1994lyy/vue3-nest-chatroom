@@ -7,6 +7,5 @@
   </n-message-provider>
 </template>
 
-
 <style scoped>
 </style>

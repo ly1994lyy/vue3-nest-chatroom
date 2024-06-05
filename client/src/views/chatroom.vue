@@ -70,10 +70,10 @@ onMounted(() => {
   </div>
   <div v-if="currentMsgUser.id" class="flex-1 p-20">
     <div v-for="(i, index) in currentMsgList" :key="index" class="my-10">
-      <div :class="`flex ${i.formUsername === 'you' ? 'flex-row-reverse' : ''}`">
+      <div :class="`flex ${i.formUsername === currentUser.username ? 'flex-row-reverse' : ''}`">
         {{ i.formUsername }}({{ i.sendTime }}):
       </div>
-      <div :class="`flex ${i.formUsername === 'you' ? 'flex-row-reverse' : ''}`">
+      <div :class="`flex ${i.formUsername === currentUser.username ? 'flex-row-reverse' : ''}`">
         {{ i.msg }}
       </div>
     </div>
