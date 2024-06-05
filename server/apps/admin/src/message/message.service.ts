@@ -26,6 +26,14 @@ export class MessageService {
       receiver,
       content,
     });
-    return this.messageRepository.save(message);
+    return await this.messageRepository.save(message);
+  }
+
+  async getMessagesForUser(userId: bigint) {
+    return await this.messageRepository.find({
+      where: [{ sender: { id: userId } }, { receiver: { id: userId } }],
+      relations: ['sender', 'receiver'],
+      order: { sentAt: 'ASC' },
+    });
   }
 }

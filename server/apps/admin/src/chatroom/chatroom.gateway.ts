@@ -47,9 +47,11 @@ export class ChatroomGateway {
     } else {
       this.onlineUserList.push({ ...onlineUser, socketId: client.id });
     }
+    const message = await this.messageService.getMessagesForUser(onlineUser.id);
     // client.broadcast.emit('onlineUserList', this.onlineUserList);
     return {
       data: friends,
+      message,
     };
   }
 
