@@ -1,3 +1,4 @@
+import { UserService } from './../user/user.service';
 import {
   WebSocketGateway,
   SubscribeMessage,
@@ -15,6 +16,7 @@ import {
 } from './dto/chatroom.model';
 import * as process from 'process';
 import { FriendshipService } from '../friendship/friendship.service';
+import { MessageService } from '../message/message.service';
 
 @WebSocketGateway({
   cors: {
@@ -29,6 +31,8 @@ export class ChatroomGateway {
   constructor(
     private readonly chatroomService: ChatroomService,
     private readonly friendshipService: FriendshipService,
+    private readonly userService: UserService,
+    private readonly messageService: MessageService,
   ) {}
 
   @SubscribeMessage('online')
@@ -64,6 +68,11 @@ export class ChatroomGateway {
     if (user) {
       const targetId = user.socketId;
       const socket = this.server.sockets.sockets.get(targetId);
+      this.messageService.sendMessageToUser(
+        sendInfo.fromUserId,
+        sendInfo.toUserId,
+        sendInfo.msg,
+      );
       socket.emit('receiveMsg', {
         sendUserId: sendInfo.fromUserId,
         sendUserName: sendInfo.fromUsername,
@@ -76,5 +85,13 @@ export class ChatroomGateway {
   @SubscribeMessage('addFriend')
   addFriend(@MessageBody() add: addFriendType) {
     console.log(add.friendId);
+  }
+
+  @SubscribeMessage('searchUser')
+  async searchUser(@MessageBody() userName: string) {
+    const user = await this.userService.findUserName(userName);
+    return {
+      data: user,
+    };
   }
 }

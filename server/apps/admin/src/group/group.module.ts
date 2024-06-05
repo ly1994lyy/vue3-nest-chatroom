@@ -6,5 +6,6 @@ import { Group } from './entities/group.entity';
 @Module({
   imports: [TypeOrmModule.forFeature([Group])],
   providers: [GroupService],
+  exports: [GroupService],
 })
 export class GroupModule {}
