@@ -38,7 +38,7 @@ function send() {
     msg: msg.value,
   })
   emits('localSendMsg', {
-    formUsername: 'you',
+    formUsername: currentUser.value.username,
     toUserId: props.currentMsgUser.id,
     sendTime: formateDataTime(new Date().getTime()),
     msg: msg.value,
