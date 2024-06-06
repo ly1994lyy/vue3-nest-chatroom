@@ -22,8 +22,12 @@ export class RedisService {
     await this.redisClient.set(`user:${userId}:socketId`, socketId);
   }
 
+  async delSocketId(userId: bigint) {
+    await this.redisClient.DEL(`user:${userId}:socketId`);
+  }
+
   async storeOfflineMessage(
-    userId: number,
+    userId: bigint,
     message: sendMsgType,
   ): Promise<void> {
     await this.redisClient.lPush(
@@ -40,7 +44,7 @@ export class RedisService {
     return messages.map((msg) => JSON.parse(msg));
   }
 
-  async clearOfflineMessages(userId: number): Promise<void> {
+  async clearOfflineMessages(userId: bigint): Promise<void> {
     await this.redisClient.del(`user:${userId}:offlineMessages`);
   }
 }
