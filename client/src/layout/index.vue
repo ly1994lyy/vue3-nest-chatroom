@@ -6,6 +6,7 @@ import { useRouter } from 'vue-router'
 import { Add, Search, Settings } from '@vicons/ionicons5'
 import Friend from '@/components/Friend.vue'
 import type { IMsg, IMsgBox, IServerMSg, onlineUser } from '@/types/model'
+import type { User } from '@/types/user'
 
 const socket = io('http://localhost:9000')
 const message = useMessage()
@@ -60,11 +61,11 @@ function localSendMsg(msg: IMsg) {
 }
 
 // 查找用户功能
-const userResult = ref({})
-const addFriendReqList = ref([])
+const userResult = ref<User>({} as User)
+const addFriendReqList = ref<User[]>([])
 const addvisible = ref(false)
 function searchUser() {
-  socket.emit('searchUser', queryUser.value.name, (data) => {
+  socket.emit('searchUser', queryUser.value.name, (data: { data: User }) => {
     userResult.value = data.data
   })
 }
@@ -73,7 +74,7 @@ function openAddFriend() {
   addvisible.value = true
 }
 
-socket.on('addFriendResponse', (data) => {
+socket.on('addFriendResponse', (data: { user: User }) => {
   addFriendReqList.value.push(data.user)
 })
 
@@ -199,7 +200,7 @@ onMounted(() => {
         role="dialog"
         aria-modal="true"
       >
-        <div v-for="user in addFriendReqList" :key="user.id">
+        <div v-for="user in addFriendReqList" :key="`${user.id}`">
           {{ user.username }}请求添加好友<n-button type="primary" @click="addFriendSure(user.id)">
             确认
           </n-button>
