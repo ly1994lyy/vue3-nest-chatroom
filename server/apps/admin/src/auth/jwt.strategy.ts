@@ -15,8 +15,8 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     } as StrategyOptions);
   }
 
-  async validate(id: string) {
-    const user = await this.userService.findOne(Number(id));
+  async validate(id: bigint) {
+    const user = await this.userService.findOneById(id);
     if (!user) {
       throw new ApiException(ErrorCodeEnum.USER_Login_Error);
     }
