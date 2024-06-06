@@ -19,9 +19,6 @@ function getUserVisible() {
   visible.value = true
 }
 
-socket.on('connect', () => {
-  message.success('连接成功')
-})
 // 当前登录的用户
 const currentUser = ref({
   username: '',
@@ -64,14 +61,30 @@ function localSendMsg(msg: IMsg) {
 
 // 查找用户功能
 const userResult = ref({})
+const addFriendReqList = ref([])
+const addvisible = ref(false)
 function searchUser() {
   socket.emit('searchUser', queryUser.value.name, (data) => {
     userResult.value = data.data
   })
 }
 
+function openAddFriend() {
+  addvisible.value = true
+}
+
+socket.on('addFriendResponse', (data) => {
+  addFriendReqList.value.push(data.user)
+})
+
 function addFriend() {
-  socket.emit('addFriend', { userId: currentUser.value.id, friendId: userResult.value.id })
+  socket.emit('addFriendRequest', { userId: currentUser.value.id, friendId: userResult.value.id })
+}
+
+function addFriendSure(id: bigint) {
+  socket.emit('addFriend', { userId: id, friendId: currentUser.value.id })
+  addvisible.value = false
+  message.success('添加好友成功')
 }
 
 function serverSendMsg(message: IServerMSg) {
@@ -103,6 +116,9 @@ function logout() {
 }
 
 onMounted(() => {
+  socket.on('connect', () => {
+    message.success('连接成功')
+  })
   currentUser.value = {
     username: history.state.username as string,
     id: history.state.id as string,
@@ -144,6 +160,12 @@ onMounted(() => {
         </n-button>
       </div>
       <div class="flex-1">
+        <div v-if="addFriendReqList.length" class="p-20" @click="openAddFriend">
+          <n-button class="w-full" type="error">
+            有{{ addFriendReqList.length }}个好友请求
+          </n-button>
+        </div>
+
         <div>
           <Friend :friends="friends" :current-msg-user="currentMsgUser" @set-current-msg-user="setCurrentMsgUser" />
         </div>
@@ -167,6 +189,23 @@ onMounted(() => {
     <div class="flex-1 flex flex-col">
       <RouterView :current-msg-user="currentMsgUser" :socket="socket" :current-msg-list="currentMsgList" @local-send-msg="localSendMsg" @server-send-msg="serverSendMsg" />
     </div>
+
+    <n-modal v-model:show="addvisible">
+      <n-card
+        style="width: 600px"
+        title="添加好友"
+        :bordered="false"
+        size="huge"
+        role="dialog"
+        aria-modal="true"
+      >
+        <div v-for="user in addFriendReqList" :key="user.id">
+          {{ user.username }}请求添加好友<n-button type="primary" @click="addFriendSure(user.id)">
+            确认
+          </n-button>
+        </div>
+      </n-card>
+    </n-modal>
 
     <n-modal v-model:show="visible">
       <n-card

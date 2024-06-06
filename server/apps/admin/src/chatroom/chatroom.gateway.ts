@@ -96,9 +96,25 @@ export class ChatroomGateway {
     }
   }
 
+  @SubscribeMessage('addFriendRequest')
+  async addFriendRequest(@MessageBody() add: addFriendType) {
+    const receiveScoketId = await this.redisService.getSocketId(add.friendId);
+    const user = await this.userService.findOneById(add.userId);
+    if (receiveScoketId) {
+      this.server.sockets.sockets
+        .get(receiveScoketId)
+        .emit('addFriendResponse', {
+          user,
+        });
+    } else {
+      this.redisService.storeAddFriendRequestMessage(add.friendId, user);
+    }
+  }
+
   @SubscribeMessage('addFriend')
-  addFriend(@MessageBody() add: addFriendType) {
-    console.log(add.friendId);
+  async addFriend(@MessageBody() add: addFriendType) {
+    console.log(add);
+    await this.friendshipService.addFriend(add.userId, add.friendId);
   }
 
   @SubscribeMessage('searchUser')
