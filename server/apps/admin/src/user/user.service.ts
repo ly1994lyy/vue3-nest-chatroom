@@ -34,12 +34,21 @@ export class UserService {
     });
   }
 
-  findUserName(username: string) {
+  findUserByName(username: string) {
     return this.user.findOne({ where: { username } });
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  findUserByNameWithPass(username: string) {
+    return this.user.findOne({
+      where: { username },
+      select: ['id', 'username', 'password'],
+    });
+  }
+
+  async updateUserInfo(id: bigint, updateUserDto: UpdateUserDto) {
+    const user = await this.findOneById(id);
+    user.password = updateUserDto.password;
+    return await this.user.update('' + id, user);
   }
 
   remove(id: number) {

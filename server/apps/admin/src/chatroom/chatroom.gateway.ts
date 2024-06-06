@@ -8,12 +8,7 @@ import {
 } from '@nestjs/websockets';
 import { ChatroomService } from './chatroom.service';
 import { Server, Socket } from 'socket.io';
-import {
-  addFriendType,
-  onlineUserDto,
-  sendMsgType,
-  userInfoDto,
-} from './dto/chatroom.model';
+import { addFriendType, sendMsgType, userInfoDto } from './dto/chatroom.model';
 import * as process from 'process';
 import { FriendshipService } from '../friendship/friendship.service';
 import { MessageService } from '../message/message.service';
@@ -25,8 +20,6 @@ import { RedisService } from './redis.service';
   },
 })
 export class ChatroomGateway {
-  private onlineUserList: onlineUserDto[] = [];
-
   @WebSocketServer()
   server: Server;
   constructor(
@@ -42,49 +35,37 @@ export class ChatroomGateway {
     @MessageBody() onlineUser: userInfoDto,
     @ConnectedSocket() client: Socket,
   ) {
-    const user = this.onlineUserList.find((e) => e.id === onlineUser.id);
     const friends = await this.friendshipService.getFriends(onlineUser.id);
-    this.redisService.storeSocketId(onlineUser.id, client.id);
-    if (user) {
-      user.socketId = client.id;
-    } else {
-      this.onlineUserList.push({ ...onlineUser, socketId: client.id });
-    }
+    await this.redisService.storeSocketId(onlineUser.id, client.id);
     const message = await this.messageService.getMessagesForUser(onlineUser.id);
-    const offlineMessaga = await this.redisService.getOfflineMessage(
+    const offlineMessage = await this.redisService.getOfflineMessage(
       onlineUser.id,
     );
     await this.redisService.clearOfflineMessages(onlineUser.id);
-    // client.broadcast.emit('onlineUserList', this.onlineUserList);
     return {
       data: friends,
       message,
-      offlineMessaga,
+      offlineMessage,
     };
   }
 
   @SubscribeMessage('offline')
-  offline(@MessageBody() id: bigint, @ConnectedSocket() client: Socket) {
-    const user = this.onlineUserList.find((e) => e.id === id);
-    this.redisService.delSocketId(id);
-    if (user) {
-      this.onlineUserList = this.onlineUserList.filter((e) => e.id !== id);
-    }
-    client.broadcast.emit('onlineUserList', this.onlineUserList);
+  async offline(@MessageBody() id: bigint) {
+    await this.redisService.delSocketId(id);
   }
 
   @SubscribeMessage('sendMsg')
   async sendMsg(@MessageBody() sendInfo: sendMsgType) {
-    this.messageService.sendMessageToUser(
+    await this.messageService.sendMessageToUser(
       sendInfo.fromUserId,
       sendInfo.toUserId,
       sendInfo.msg,
     );
-    const receiveScoketId = await this.redisService.getSocketId(
+    const receiveSocketId = await this.redisService.getSocketId(
       sendInfo.toUserId,
     );
-    if (receiveScoketId) {
-      const socket = this.server.sockets.sockets.get(receiveScoketId);
+    if (receiveSocketId) {
+      const socket = this.server.sockets.sockets.get(receiveSocketId);
       socket.emit('receiveMsg', {
         sendUserId: sendInfo.fromUserId,
         sendUserName: sendInfo.fromUsername,
@@ -92,22 +73,23 @@ export class ChatroomGateway {
         sendTime: sendInfo.sendTime,
       });
     } else {
-      this.redisService.storeOfflineMessage(sendInfo.toUserId, sendInfo);
+      await this.redisService.storeOfflineMessage(sendInfo.toUserId, sendInfo);
     }
   }
 
   @SubscribeMessage('addFriendRequest')
   async addFriendRequest(@MessageBody() add: addFriendType) {
-    const receiveScoketId = await this.redisService.getSocketId(add.friendId);
+    const receiveSocketId = await this.redisService.getSocketId(add.friendId);
     const user = await this.userService.findOneById(add.userId);
-    if (receiveScoketId) {
+    console.log(user);
+    if (receiveSocketId) {
       this.server.sockets.sockets
-        .get(receiveScoketId)
+        .get(receiveSocketId)
         .emit('addFriendResponse', {
           user,
         });
     } else {
-      this.redisService.storeAddFriendRequestMessage(add.friendId, user);
+      await this.redisService.storeAddFriendRequestMessage(add.friendId, user);
     }
   }
 
@@ -119,7 +101,7 @@ export class ChatroomGateway {
 
   @SubscribeMessage('searchUser')
   async searchUser(@MessageBody() userName: string) {
-    const user = await this.userService.findUserName(userName);
+    const user = await this.userService.findUserByName(userName);
     return {
       data: user,
     };

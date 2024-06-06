@@ -16,6 +16,7 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
     if (!user) {
       throw new ApiException(ErrorCodeEnum.USER_Login_Error);
     }
+    delete user.password;
     return user;
   }
 }

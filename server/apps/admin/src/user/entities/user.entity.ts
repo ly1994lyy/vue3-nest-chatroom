@@ -6,6 +6,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   OneToMany,
+  BeforeUpdate,
 } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { Friendship } from '../../friendship/entities/friendship.entity';
@@ -20,7 +21,7 @@ export class User {
   @Column()
   username: string;
 
-  @Column()
+  @Column({ select: false })
   password: string;
 
   @Column()
@@ -41,6 +42,7 @@ export class User {
   @OneToMany(() => Group, (group) => group.createdBy)
   createdGroups: Group[];
 
+  @BeforeUpdate()
   @BeforeInsert()
   beforeInsert() {
     this.password = bcrypt.hashSync(this.password, 10);
