@@ -1,10 +1,3 @@
-export interface onlineUser {
-  username: string
-  id: string
-  socketId: number
-  avatar: string
-}
-
 export interface IMsg {
   formUsername: string
   sendTime: Date
@@ -12,12 +5,12 @@ export interface IMsg {
 }
 
 export interface IMsgBox {
-  userId: string
+  userId: bigint
   msgList: IMsg[]
 }
 
 export interface IServerMSg {
-  sendUserId: string
+  sendUserId: bigint
   sendUserName: string
   msg: string
   sendTime: Date

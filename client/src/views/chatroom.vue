@@ -4,6 +4,7 @@ import { onMounted, ref } from 'vue'
 import { Send } from '@vicons/ionicons5'
 import type { IMsg } from '@/types/model'
 import { formateDataTime } from '@/utils/data'
+import type { User } from '@/types/users'
 
 interface IProp {
   currentMsgUser: {
@@ -23,11 +24,7 @@ props.socket.on('receiveMsg', (data) => {
   emits('serverSendMsg', data)
 })
 
-const currentUser = ref({
-  username: '',
-  id: '',
-  avatar: '',
-})
+const currentUser = ref<User>({} as User)
 
 function send() {
   props.socket.emit('sendMsg', {
@@ -47,11 +44,7 @@ function send() {
 }
 
 onMounted(() => {
-  currentUser.value = {
-    username: history.state.username as string,
-    id: history.state.id as string,
-    avatar: history.state.avatar as string,
-  }
+  currentUser.value = history.state.user
 })
 </script>
 

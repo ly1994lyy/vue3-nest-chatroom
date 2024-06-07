@@ -19,7 +19,7 @@ async function login() {
     const id = res.data.user.id
     const avatar = res.data.user.avatar
     store.setUser({ username, id, avatar })
-    router.push({ name: 'chatroom', state: { username, id, avatar } })
+    router.push({ name: 'chatroom', state: { user: res.data.user } })
   }
   catch (error) {
   }

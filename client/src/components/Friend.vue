@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import type { onlineUser } from '@/types/model'
+import type { User } from '@/types/users'
 
 interface IProp {
-  friends: onlineUser[]
+  friends: User[]
   currentMsgUser: {
     username: string
-    id: string
+    id: bigint
     avatar: string
   }
 }
@@ -17,7 +17,7 @@ const emits = defineEmits(['setCurrentMsgUser'])
 
 <template>
   <div
-    v-for="user in friends" :key="user.id"
+    v-for="user in friends" :key="`${user.id}`"
     :class="`flex cursor-pointer mb-10 p-20 h-50 items-center hover:bg-gray-100 ${user.id === currentMsgUser.id ? 'bg-coolgray-200' : ''}`"
     @click="emits('setCurrentMsgUser', user)"
   >

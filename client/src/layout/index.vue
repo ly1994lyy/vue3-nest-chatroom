@@ -5,8 +5,9 @@ import { useMessage } from 'naive-ui'
 import { useRouter } from 'vue-router'
 import { Add, Search, Settings } from '@vicons/ionicons5'
 import Friend from '@/components/Friend.vue'
-import type { IMsg, IMsgBox, IServerMSg, onlineUser } from '@/types/model'
-import type { User } from '@/types/user'
+import type { IMsg, IMsgBox, IServerMSg } from '@/types/model'
+import type { IOfflineMessage } from '@/types/message'
+import type { User } from '@/types/users'
 
 const socket = io('http://localhost:9000')
 const message = useMessage()
@@ -21,29 +22,16 @@ function getUserVisible() {
 }
 
 // 当前登录的用户
-const currentUser = ref({
-  username: '',
-  id: '',
-  avatar: '',
-})
+const currentUser = ref<User>({} as User)
 // 当前聊天窗口的对象用户
-const currentMsgUser = ref({
-  username: '',
-  id: '',
-  avatar: '',
-})
-// 所有在线用户的集合
-const onlineUserList = ref<onlineUser[]>([])
+const currentMsgUser = ref<User>({} as User)
+
 // 所有联系人
-const friends = ref<onlineUser[]>([])
+const friends = ref<User[]>([])
 // 和当前登录用户的所有聊天记录集合
 const msgList = ref<IMsgBox[]>([] as IMsgBox[])
 
-socket.on('onlineUserList', (data: onlineUser[]) => {
-  onlineUserList.value = data.filter(i => i.id !== currentUser.value.id)
-})
-
-function setCurrentMsgUser(user: { username: string, id: string, avatar: string }) {
+function setCurrentMsgUser(user: User) {
   currentMsgUser.value = user
 }
 
@@ -120,13 +108,9 @@ onMounted(() => {
   socket.on('connect', () => {
     message.success('连接成功')
   })
-  currentUser.value = {
-    username: history.state.username as string,
-    id: history.state.id as string,
-    avatar: history.state.avatar as string,
-  }
-  socket.emit('online', currentUser.value, (data: { data: onlineUser[], message: any }) => {
-    friends.value = data.data.filter(i => i.id !== currentUser.value.id)
+  currentUser.value = history.state.user
+  socket.emit('online', currentUser.value, (data: { friends: User[], message: IOfflineMessage[] }) => {
+    friends.value = data.friends.filter(i => i.id !== currentUser.value.id)
     friends.value.forEach((e) => {
       const msg = data.message.filter(item => item.receiver.id === e.id || item.sender.id === e.id)
       const lists = msg.map((item) => {
