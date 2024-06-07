@@ -5,6 +5,7 @@ import { useMessage } from 'naive-ui'
 import { useRouter } from 'vue-router'
 import { Add, Search, Settings } from '@vicons/ionicons5'
 import Friend from '@/components/Friend.vue'
+import AddFriend from '@/components/AddFriend.vue'
 import type { IMsg, IMsgBox, IServerMSg } from '@/types/model'
 import type { IOfflineMessage } from '@/types/message'
 import type { User } from '@/types/users'
@@ -14,9 +15,6 @@ const message = useMessage()
 const router = useRouter()
 
 const visible = ref(false)
-const queryUser = ref({
-  name: '',
-})
 function getUserVisible() {
   visible.value = true
 }
@@ -48,15 +46,8 @@ function localSendMsg(msg: IMsg) {
   }
 }
 
-// 查找用户功能
-const userResult = ref<User>({} as User)
 const addFriendReqList = ref<User[]>([])
 const addvisible = ref(false)
-function searchUser() {
-  socket.emit('searchUser', queryUser.value.name, (data: { data: User }) => {
-    userResult.value = data.data
-  })
-}
 
 function openAddFriend() {
   addvisible.value = true
@@ -65,10 +56,6 @@ function openAddFriend() {
 socket.on('addFriendResponse', (data: { user: User }) => {
   addFriendReqList.value.push(data.user)
 })
-
-function addFriend() {
-  socket.emit('addFriendRequest', { userId: currentUser.value.id, friendId: userResult.value.id })
-}
 
 function addFriendSure(id: bigint) {
   socket.emit('addFriend', { userId: id, friendId: currentUser.value.id })
@@ -192,34 +179,7 @@ onMounted(() => {
       </n-card>
     </n-modal>
 
-    <n-modal v-model:show="visible">
-      <n-card
-        style="width: 600px"
-        title="查找好友"
-        :bordered="false"
-        size="huge"
-        role="dialog"
-        aria-modal="true"
-      >
-        <n-input v-model:value="queryUser.name" />
-        <n-button @click="searchUser">
-          查找
-        </n-button>
-        <div>查找结果</div>
-        <div>
-          <n-avatar
-            round
-            size="small"
-            :src="userResult.avatar"
-          />
-        </div>
-        <div>id:{{ userResult.id }}</div>
-        <div>昵称:{{ userResult.username }}</div>
-        <n-button @click="addFriend">
-          添加为好友
-        </n-button>
-      </n-card>
-    </n-modal>
+    <AddFriend v-if="visible" v-model="visible" :current-user="currentUser" :socket="socket" />
   </div>
 </template>
 
