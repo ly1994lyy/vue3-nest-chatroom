@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
 import { ref } from 'vue'
+import { LockClosed, Person } from '@vicons/ionicons5'
 import { loginApi } from '@/apis/login.ts'
 import { useUserStore } from '@/stores/user.ts'
 
@@ -28,25 +29,33 @@ async function login() {
 
 <template>
   <div class="f-center items-center w-screen h-screen bg-gray-100">
-    <div class="w-400 h-500 bg-white rounded-20 f-center flex-col">
+    <div class="w-400 h-400 md:h-500 bg-white rounded-20 f-center flex-col shadow-2xl">
       <h1
-        p="y-20" text="40 amber" font="bold"
+        p="y-20" text="35 black" font="bold"
       >
-        在线聊天室
+        Vue Chat
       </h1>
-      <n-form :label-width="80" :model="formValue">
-        <n-form-item label="姓名" path="user.name">
-          <n-input v-model:value="formValue.username" placeholder="输入姓名" />
+      <n-form :model="formValue">
+        <n-form-item path="user.name">
+          <n-input v-model:value="formValue.username" placeholder="输入姓名">
+            <template #prefix>
+              <n-icon :component="Person" />
+            </template>
+          </n-input>
         </n-form-item>
-        <n-form-item label="密码" path="user.age">
+        <n-form-item path="user.age">
           <n-input
             v-model:value="formValue.password"
             type="password"
             placeholder="输入密码"
-          />
+          >
+            <template #prefix>
+              <n-icon :component="LockClosed" />
+            </template>
+          </n-input>
         </n-form-item>
         <n-form-item>
-          <n-button attr-type="button" @click="login">
+          <n-button attr-type="button" class="w-full" type="primary" @click="login">
             登录
           </n-button>
         </n-form-item>
