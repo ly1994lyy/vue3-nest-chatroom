@@ -43,7 +43,7 @@ export class ChatroomGateway {
     );
     await this.redisService.clearOfflineMessages(onlineUser.id);
     return {
-      data: friends,
+      friends,
       message,
       offlineMessage,
     };
