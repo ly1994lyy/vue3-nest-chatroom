@@ -6,8 +6,7 @@ import { useRouter } from 'vue-router'
 import { Add, Search, Settings } from '@vicons/ionicons5'
 import Friend from '@/components/Friend.vue'
 import AddFriend from '@/components/AddFriend.vue'
-import type { IMsg, IMsgBox, IServerMSg } from '@/types/model'
-import type { IOfflineMessage } from '@/types/message'
+import type { IMessageBox, IOfflineMessage } from '@/types/message'
 import type { User } from '@/types/users'
 
 const socket = io('http://localhost:9000')
@@ -27,21 +26,21 @@ const currentMsgUser = ref<User>({} as User)
 // 所有联系人
 const friends = ref<User[]>([])
 // 和当前登录用户的所有聊天记录集合
-const msgList = ref<IMsgBox[]>([] as IMsgBox[])
+const msgList = ref<IMessageBox[]>([] as IMessageBox[])
 
 function setCurrentMsgUser(user: User) {
   currentMsgUser.value = user
 }
 
-function localSendMsg(msg: IMsg) {
-  const user = msgList.value.find(e => e.userId === currentMsgUser.value.id)
+function localSendMsg(msg: IOfflineMessage) {
+  const user = msgList.value.find(e => e.user.id === currentMsgUser.value.id)
   if (user) {
-    user.msgList.push(msg)
+    user.messages.push(msg)
   }
   else {
     msgList.value.push({
-      userId: currentMsgUser.value.id,
-      msgList: [msg],
+      user: currentMsgUser,
+      messages: [msg],
     })
   }
 }
@@ -63,33 +62,29 @@ function addFriendSure(id: bigint) {
   message.success('添加好友成功')
 }
 
-function serverSendMsg(message: IServerMSg) {
-  const user = msgList.value.find(e => e.userId === message.sendUserId)
+function serverSendMsg(message: IOfflineMessage) {
+  const user = msgList.value.find(e => e.user.id === message.sender.id)
   if (user) {
-    user.msgList.push({
-      formUsername: message.sendUserName,
-      msg: message.msg,
-      sendTime: message.sendTime,
-    })
+    user.messages.push(message)
   }
   else {
     msgList.value.push({
-      userId: message.sendUserId,
-      msgList: [{
-        formUsername: message.sendUserName,
-        msg: message.msg,
-        sendTime: message.sendTime,
-      }],
+      user: message.receiver,
+      messages: [message],
     })
   }
 }
 
-const currentMsgList = computed(() => msgList.value.find(e => e.userId === currentMsgUser.value.id)?.msgList || [])
+const currentMsgList = computed(() => msgList.value.find(e => e.user.id === currentMsgUser.value.id)?.messages || [])
 
 function logout() {
   socket.emit('offline', currentUser.value.id)
   router.push('/login')
 }
+
+socket.on('disconnect', () => {
+  message.error('断开了连接')
+})
 
 onMounted(() => {
   socket.on('connect', () => {
@@ -100,16 +95,9 @@ onMounted(() => {
     friends.value = data.friends.filter(i => i.id !== currentUser.value.id)
     friends.value.forEach((e) => {
       const msg = data.message.filter(item => item.receiver.id === e.id || item.sender.id === e.id)
-      const lists = msg.map((item) => {
-        return {
-          formUsername: item.sender.username,
-          msg: item.content,
-          sendTime: item.sentAt,
-        }
-      })
       msgList.value.push({
-        userId: e.id,
-        msgList: lists,
+        user: e,
+        messages: msg,
       })
     })
   })

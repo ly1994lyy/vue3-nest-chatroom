@@ -8,7 +8,7 @@ import {
 } from '@nestjs/websockets';
 import { ChatroomService } from './chatroom.service';
 import { Server, Socket } from 'socket.io';
-import { addFriendType, sendMsgType, userInfoDto } from './dto/chatroom.model';
+import { addFriendType, messageType, userInfoDto } from './dto/chatroom.model';
 import * as process from 'process';
 import { FriendshipService } from '../friendship/friendship.service';
 import { MessageService } from '../message/message.service';
@@ -35,6 +35,10 @@ export class ChatroomGateway {
     @MessageBody() onlineUser: userInfoDto,
     @ConnectedSocket() client: Socket,
   ) {
+    if (!onlineUser) {
+      client.disconnect();
+      return;
+    }
     const friends = await this.friendshipService.getFriends(onlineUser.id);
     await this.redisService.storeSocketId(onlineUser.id, client.id);
     const message = await this.messageService.getMessagesForUser(onlineUser.id);
@@ -55,25 +59,26 @@ export class ChatroomGateway {
   }
 
   @SubscribeMessage('sendMsg')
-  async sendMsg(@MessageBody() sendInfo: sendMsgType) {
+  async sendMsg(@MessageBody() sendInfo: messageType) {
     await this.messageService.sendMessageToUser(
-      sendInfo.fromUserId,
-      sendInfo.toUserId,
-      sendInfo.msg,
+      sendInfo.sender.id,
+      sendInfo.receiver.id,
+      sendInfo.content,
     );
     const receiveSocketId = await this.redisService.getSocketId(
-      sendInfo.toUserId,
+      sendInfo.receiver.id,
     );
     if (receiveSocketId) {
       const socket = this.server.sockets.sockets.get(receiveSocketId);
       socket.emit('receiveMsg', {
-        sendUserId: sendInfo.fromUserId,
-        sendUserName: sendInfo.fromUsername,
-        msg: sendInfo.msg,
-        sendTime: sendInfo.sendTime,
+        ...sendInfo,
+        sendAt: new Date(),
       });
     } else {
-      await this.redisService.storeOfflineMessage(sendInfo.toUserId, sendInfo);
+      await this.redisService.storeOfflineMessage(sendInfo.receiver.id, {
+        ...sendInfo,
+        sentAt: new Date(),
+      });
     }
   }
 

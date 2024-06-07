@@ -2,18 +2,13 @@
 import type { Socket } from 'socket.io-client'
 import { onMounted, ref } from 'vue'
 import { Send } from '@vicons/ionicons5'
-import type { IMsg } from '@/types/model'
-import { formateDataTime } from '@/utils/data'
 import type { User } from '@/types/users'
+import type { IOfflineMessage } from '@/types/message'
 
 interface IProp {
-  currentMsgUser: {
-    username: string
-    id: string
-    avatar: string
-  }
+  currentMsgUser: User
   socket: Socket
-  currentMsgList: IMsg[]
+  currentMsgList: IOfflineMessage[]
 }
 const props = defineProps<IProp>()
 
@@ -28,18 +23,17 @@ const currentUser = ref<User>({} as User)
 
 function send() {
   props.socket.emit('sendMsg', {
-    fromUsername: currentUser.value.username,
-    fromUserId: currentUser.value.id,
-    toUserId: props.currentMsgUser.id,
-    sendTime: formateDataTime(new Date().getTime()),
-    msg: msg.value,
-  })
+    sender: currentUser.value,
+    receiver: props.currentMsgUser,
+    content: msg.value,
+    sentAt: new Date(),
+  } as IOfflineMessage)
   emits('localSendMsg', {
-    formUsername: currentUser.value.username,
-    toUserId: props.currentMsgUser.id,
-    sendTime: formateDataTime(new Date().getTime()),
-    msg: msg.value,
-  })
+    sender: currentUser.value,
+    receiver: props.currentMsgUser,
+    content: msg.value,
+    sentAt: new Date(),
+  } as IOfflineMessage)
   msg.value = ''
 }
 
@@ -63,11 +57,11 @@ onMounted(() => {
   </div>
   <div v-if="currentMsgUser.id" class="flex-1 p-20">
     <div v-for="(i, index) in currentMsgList" :key="index" class="my-10">
-      <div :class="`flex ${i.formUsername === currentUser.username ? 'flex-row-reverse' : ''}`">
-        {{ i.formUsername }}({{ i.sendTime }}):
+      <div :class="`flex ${i.sender.id === currentUser.id ? 'flex-row-reverse' : ''}`">
+        {{ i.sender.username }}({{ i.sentAt }}):
       </div>
-      <div :class="`flex ${i.formUsername === currentUser.username ? 'flex-row-reverse' : ''}`">
-        {{ i.msg }}
+      <div :class="`flex ${i.sender.id === currentUser.id ? 'flex-row-reverse' : ''}`">
+        {{ i.content }}
       </div>
     </div>
   </div>

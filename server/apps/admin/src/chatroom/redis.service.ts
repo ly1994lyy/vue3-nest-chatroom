@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { RedisClientType, createClient } from 'redis';
 import * as process from 'process';
-import { sendMsgType } from './dto/chatroom.model';
+import { messageType } from './dto/chatroom.model';
 
 @Injectable()
 export class RedisService {
@@ -28,7 +28,7 @@ export class RedisService {
 
   async storeOfflineMessage(
     userId: bigint,
-    message: sendMsgType,
+    message: messageType,
   ): Promise<void> {
     await this.redisClient.lPush(
       `user:${userId}:offlineMessages`,

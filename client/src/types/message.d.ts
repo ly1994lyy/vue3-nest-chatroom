@@ -7,3 +7,8 @@ export interface IOfflineMessage {
   content: string
   sentAt: Date
 }
+
+export interface IMessageBox {
+  user: User
+  messages: IOfflineMessage[]
+}

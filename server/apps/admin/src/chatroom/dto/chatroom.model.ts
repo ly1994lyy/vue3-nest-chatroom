@@ -1,3 +1,5 @@
+import { User } from '../../user/entities/user.entity';
+
 export type userInfoDto = {
   username: string;
   id: bigint;
@@ -5,12 +7,12 @@ export type userInfoDto = {
 
 export type onlineUserDto = userInfoDto & { socketId: string };
 
-export type sendMsgType = {
-  fromUsername: string;
-  fromUserId: bigint;
-  toUserId: bigint;
-  sendTime: Date;
-  msg: string;
+export type messageType = {
+  id?: bigint;
+  sender: User;
+  receiver: User;
+  content: string;
+  sentAt: Date;
 };
 
 export type addFriendType = {
