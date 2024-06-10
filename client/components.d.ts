@@ -11,6 +11,7 @@ declare module 'vue' {
     Friend: typeof import('./src/components/Friend.vue')['default']
     HelloWorld: typeof import('./src/components/HelloWorld.vue')['default']
     NAvatar: typeof import('naive-ui')['NAvatar']
+    NBadge: typeof import('naive-ui')['NBadge']
     NButton: typeof import('naive-ui')['NButton']
     NCard: typeof import('naive-ui')['NCard']
     NDialogProvider: typeof import('naive-ui')['NDialogProvider']

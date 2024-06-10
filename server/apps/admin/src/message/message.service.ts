@@ -1,4 +1,4 @@
-import { GroupService } from './../group/group.service';
+import { GroupService } from '../group/group.service';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Message } from './entities/message.entity';

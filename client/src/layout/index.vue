@@ -6,7 +6,7 @@ import { useRouter } from 'vue-router'
 import { Add, Search, Settings } from '@vicons/ionicons5'
 import Friend from '@/components/Friend.vue'
 import AddFriend from '@/components/AddFriend.vue'
-import type { IMessageBox, IOfflineMessage } from '@/types/message'
+import type { IMessage, IMessageBox } from '@/types/message'
 import type { User } from '@/types/users'
 
 const socket = io('http://localhost:9000')
@@ -32,7 +32,7 @@ function setCurrentMsgUser(user: User) {
   currentMsgUser.value = user
 }
 
-function localSendMsg(msg: IOfflineMessage) {
+function localSendMsg(msg: IMessage) {
   const user = msgList.value.find(e => e.user.id === currentMsgUser.value.id)
   if (user) {
     user.messages.push(msg)
@@ -41,6 +41,7 @@ function localSendMsg(msg: IOfflineMessage) {
     msgList.value.push({
       user: currentMsgUser,
       messages: [msg],
+      unReadMessages: [],
     })
   }
 }
@@ -62,7 +63,7 @@ function addFriendSure(id: bigint) {
   message.success('添加好友成功')
 }
 
-function serverSendMsg(message: IOfflineMessage) {
+function serverSendMsg(message: IMessage) {
   const user = msgList.value.find(e => e.user.id === message.sender.id)
   if (user) {
     user.messages.push(message)
@@ -71,6 +72,7 @@ function serverSendMsg(message: IOfflineMessage) {
     msgList.value.push({
       user: message.receiver,
       messages: [message],
+      unReadMessages: [],
     })
   }
 }
@@ -91,13 +93,15 @@ onMounted(() => {
     message.success('连接成功')
   })
   currentUser.value = history.state.user
-  socket.emit('online', currentUser.value, (data: { friends: User[], message: IOfflineMessage[] }) => {
+  socket.emit('online', currentUser.value, (data: { friends: User[], message: IMessage[], offlineMessage: IMessage[] }) => {
     friends.value = data.friends.filter(i => i.id !== currentUser.value.id)
     friends.value.forEach((e) => {
       const msg = data.message.filter(item => item.receiver.id === e.id || item.sender.id === e.id)
+      const unreadMsg = data.offlineMessage.filter(item => item.receiver.id === e.id)
       msgList.value.push({
         user: e,
         messages: msg,
+        unReadMessages: unreadMsg,
       })
     })
   })

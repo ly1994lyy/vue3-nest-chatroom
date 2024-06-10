@@ -3,12 +3,12 @@ import type { Socket } from 'socket.io-client'
 import { onMounted, ref } from 'vue'
 import { Send } from '@vicons/ionicons5'
 import type { User } from '@/types/users'
-import type { IOfflineMessage } from '@/types/message'
+import type { IMessage } from '@/types/message'
 
 interface IProp {
   currentMsgUser: User
   socket: Socket
-  currentMsgList: IOfflineMessage[]
+  currentMsgList: IMessage[]
 }
 const props = defineProps<IProp>()
 
@@ -27,13 +27,13 @@ function send() {
     receiver: props.currentMsgUser,
     content: msg.value,
     sentAt: new Date(),
-  } as IOfflineMessage)
+  } as IMessage)
   emits('localSendMsg', {
     sender: currentUser.value,
     receiver: props.currentMsgUser,
     content: msg.value,
     sentAt: new Date(),
-  } as IOfflineMessage)
+  } as IMessage)
   msg.value = ''
 }
 

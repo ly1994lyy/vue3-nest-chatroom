@@ -29,6 +29,9 @@ const emits = defineEmits(['setCurrentMsgUser'])
     <div class="ml-10">
       {{ user.username }}
     </div>
+    <div>
+      <n-badge :value="20" />
+    </div>
   </div>
 </template>
 

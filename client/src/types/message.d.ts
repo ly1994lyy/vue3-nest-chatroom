@@ -1,6 +1,6 @@
 import type { User } from './user1'
 
-export interface IOfflineMessage {
+export interface IMessage {
   id: bigint
   sender: User
   receiver: User
@@ -10,5 +10,6 @@ export interface IOfflineMessage {
 
 export interface IMessageBox {
   user: User
-  messages: IOfflineMessage[]
+  messages: IMessage[]
+  unReadMessages: IMessage[]
 }
