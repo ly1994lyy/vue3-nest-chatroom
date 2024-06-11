@@ -17,7 +17,7 @@ export const useMessageStore = defineStore('message', {
   },
   actions: {
     receiveMessage(msg: IMessage) {
-      const user = this.msgList.find(e => e.user.id === msg.sender.id)
+      const user = this.msgList.find(e => e.user.id === msg.sender.id || e.user.id === msg.receiver.id)
       if (user) {
         user.messages.push(msg)
       }

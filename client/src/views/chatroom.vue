@@ -24,13 +24,9 @@ function send() {
     receiver: userStore.currentMsgUser,
     content: msg.value,
     sentAt: new Date(),
-  } as IMessage)
-  messageStore.receiveMessage({
-    sender: userStore.currentUser,
-    receiver: userStore.currentMsgUser,
-    content: msg.value,
-    sentAt: new Date(),
-  } as IMessage)
+  } as IMessage, (data: IMessage) => {
+    messageStore.receiveMessage(data)
+  })
   msg.value = ''
 }
 
@@ -55,7 +51,7 @@ onMounted(() => {
       </div>
     </div>
   </div>
-  <div v-if="userStore.currentMsgUser.id" class="flex-1 p-20">
+  <div v-if="userStore.currentMsgUser.id" class="flex-1 p-20 overflow-auto">
     <div v-for="(i, index) in messageStore.currentMsgList" :key="index" class="my-10">
       <div :class="`flex ${i.sender.id === userStore.currentUser.id ? 'flex-row-reverse' : ''}`">
         {{ i.sender.username }}({{ i.sentAt }}):
