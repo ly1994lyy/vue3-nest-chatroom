@@ -1,24 +1,26 @@
 import { defineStore } from 'pinia'
-
-interface User {
-  username: string
-  id: string
-  avatar: string
-}
+import type { User } from '@/types/users'
 
 export const useUserStore = defineStore('user', {
   state() {
     return {
-      user: {
-        username: '',
-        id: '',
-        avatar: '',
-      },
+      // 当前登录的用户
+      currentUser: {} as User,
+      // 当前聊天窗口的对象用户
+      currentMsgUser: {} as User,
+      // 所有联系人
+      friends: [] as User[],
     }
   },
   actions: {
-    setUser(user: User) {
-      this.user = user
+    setCurrentUser(user: User) {
+      this.currentUser = user
+    },
+    setCurrentMsgUser(user: User) {
+      this.currentMsgUser = user
+    },
+    setFriends(friends: User[]) {
+      this.friends = friends
     },
   },
 })

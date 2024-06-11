@@ -2,14 +2,15 @@
 import { ref } from 'vue'
 import type { Socket } from 'socket.io-client'
 import type { User } from '@/types/users'
+import { useUserStore } from '@/stores/user'
 
 interface IProps {
   modelValue: boolean
   socket: Socket
-  currentUser: User
 }
 const props = defineProps<IProps>()
 const emits = defineEmits(['update:modelValue'])
+const userStore = useUserStore()
 const userResult = ref<User>({} as User)
 const queryUser = ref({
   name: '',
@@ -21,7 +22,7 @@ function searchUser() {
 }
 
 function addFriend() {
-  props.socket.emit('addFriendRequest', { userId: props.currentUser.id, friendId: userResult.value.id })
+  props.socket.emit('addFriendRequest', { userId: userStore.currentUser.id, friendId: userResult.value.id })
 }
 </script>
 

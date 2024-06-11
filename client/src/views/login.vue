@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { useRouter } from 'vue-router'
 import { ref } from 'vue'
 import { LockClosed, Person } from '@vicons/ionicons5'
+import { useRouter } from 'vue-router'
 import { loginApi } from '@/apis/login.ts'
 import { useUserStore } from '@/stores/user.ts'
 
+const userStore = useUserStore()
 const router = useRouter()
-const store = useUserStore()
 
 const formValue = ref({
   username: '',
@@ -16,11 +16,9 @@ const formValue = ref({
 async function login() {
   try {
     const res = await loginApi(formValue.value)
-    const username = res.data.user.username
-    const id = res.data.user.id
-    const avatar = res.data.user.avatar
-    store.setUser({ username, id, avatar })
-    router.push({ name: 'chatroom', state: { user: res.data.user } })
+    userStore.setCurrentUser(res.data.user)
+    localStorage.setItem('user', JSON.stringify(res.data.user))
+    router.push({ name: 'chatroom' })
   }
   catch (error) {
   }

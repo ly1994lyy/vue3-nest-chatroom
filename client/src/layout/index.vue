@@ -8,38 +8,29 @@ import Friend from '@/components/Friend.vue'
 import AddFriend from '@/components/AddFriend.vue'
 import type { IMessage, IMessageBox } from '@/types/message'
 import type { User } from '@/types/users'
+import { useUserStore } from '@/stores/user'
 
 const socket = io('http://localhost:9000')
 const message = useMessage()
 const router = useRouter()
+const userStore = useUserStore()
 
 const visible = ref(false)
 function getUserVisible() {
   visible.value = true
 }
 
-// 当前登录的用户
-const currentUser = ref<User>({} as User)
-// 当前聊天窗口的对象用户
-const currentMsgUser = ref<User>({} as User)
-
-// 所有联系人
-const friends = ref<User[]>([])
 // 和当前登录用户的所有聊天记录集合
 const msgList = ref<IMessageBox[]>([] as IMessageBox[])
 
-function setCurrentMsgUser(user: User) {
-  currentMsgUser.value = user
-}
-
 function localSendMsg(msg: IMessage) {
-  const user = msgList.value.find(e => e.user.id === currentMsgUser.value.id)
+  const user = msgList.value.find(e => e.user.id === userStore.currentMsgUser.id)
   if (user) {
     user.messages.push(msg)
   }
   else {
     msgList.value.push({
-      user: currentMsgUser,
+      user: userStore.currentMsgUser,
       messages: [msg],
       unReadMessages: [],
     })
@@ -58,7 +49,7 @@ socket.on('addFriendResponse', (data: { user: User }) => {
 })
 
 function addFriendSure(id: bigint) {
-  socket.emit('addFriend', { userId: id, friendId: currentUser.value.id })
+  socket.emit('addFriend', { userId: id, friendId: userStore.currentUser.id })
   addvisible.value = false
   message.success('添加好友成功')
 }
@@ -77,10 +68,11 @@ function serverSendMsg(message: IMessage) {
   }
 }
 
-const currentMsgList = computed(() => msgList.value.find(e => e.user.id === currentMsgUser.value.id)?.messages || [])
+const currentMsgList = computed(() => msgList.value.find(e => e.user.id === userStore.currentMsgUser.id)?.messages || [])
 
 function logout() {
-  socket.emit('offline', currentUser.value.id)
+  socket.emit('offline', userStore.currentUser.id)
+  localStorage.removeItem('user')
   router.push('/login')
 }
 
@@ -92,10 +84,9 @@ onMounted(() => {
   socket.on('connect', () => {
     message.success('连接成功')
   })
-  currentUser.value = history.state.user
-  socket.emit('online', currentUser.value, (data: { friends: User[], message: IMessage[], offlineMessage: IMessage[] }) => {
-    friends.value = data.friends.filter(i => i.id !== currentUser.value.id)
-    friends.value.forEach((e) => {
+  socket.emit('online', userStore.currentUser, (data: { friends: User[], message: IMessage[], offlineMessage: IMessage[] }) => {
+    userStore.setFriends(data.friends.filter(i => i.id !== userStore.currentUser.id))
+    userStore.friends.forEach((e) => {
       const msg = data.message.filter(item => item.receiver.id === e.id || item.sender.id === e.id)
       const unreadMsg = data.offlineMessage.filter(item => item.receiver.id === e.id)
       msgList.value.push({
@@ -131,7 +122,7 @@ onMounted(() => {
         </div>
 
         <div>
-          <Friend :friends="friends" :current-msg-user="currentMsgUser" @set-current-msg-user="setCurrentMsgUser" />
+          <Friend />
         </div>
       </div>
       <div class="h-60 flex items-center justify-between p-20 bg-light">
@@ -139,7 +130,7 @@ onMounted(() => {
           <n-avatar
             round
             size="small"
-            :src="currentUser.avatar"
+            :src="userStore.currentUser.avatar"
           />
         </div>
         <n-button circle @click="logout">
@@ -151,7 +142,7 @@ onMounted(() => {
     </div>
 
     <div class="flex-1 flex flex-col">
-      <RouterView :current-msg-user="currentMsgUser" :socket="socket" :current-msg-list="currentMsgList" @local-send-msg="localSendMsg" @server-send-msg="serverSendMsg" />
+      <RouterView :socket="socket" :current-msg-list="currentMsgList" @local-send-msg="localSendMsg" @server-send-msg="serverSendMsg" />
     </div>
 
     <n-modal v-model:show="addvisible">
@@ -171,7 +162,7 @@ onMounted(() => {
       </n-card>
     </n-modal>
 
-    <AddFriend v-if="visible" v-model="visible" :current-user="currentUser" :socket="socket" />
+    <AddFriend v-if="visible" v-model="visible" :socket="socket" />
   </div>
 </template>
 
