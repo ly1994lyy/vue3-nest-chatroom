@@ -2,17 +2,20 @@
 import type { Socket } from 'socket.io-client'
 import { onMounted, ref } from 'vue'
 import { Send } from '@vicons/ionicons5'
+import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 import type { IMessage } from '@/types/message'
+import { useMessageStore } from '@/stores/message'
 
 interface IProp {
   socket: Socket
-  currentMsgList: IMessage[]
 }
 const props = defineProps<IProp>()
 const emits = defineEmits(['localSendMsg', 'serverSendMsg'])
 
 const userStore = useUserStore()
+const messageStore = useMessageStore()
+const router = useRouter()
 
 const msg = ref('')
 props.socket.on('receiveMsg', (data) => {
@@ -26,7 +29,7 @@ function send() {
     content: msg.value,
     sentAt: new Date(),
   } as IMessage)
-  emits('localSendMsg', {
+  messageStore.receiveMessage({
     sender: userStore.currentUser,
     receiver: userStore.currentMsgUser,
     content: msg.value,
@@ -38,6 +41,8 @@ function send() {
 onMounted(() => {
   if (localStorage.getItem('user'))
     userStore.setCurrentUser(JSON.parse(localStorage.getItem('user')!))
+  else
+    router.push('/login')
 })
 </script>
 
@@ -55,7 +60,7 @@ onMounted(() => {
     </div>
   </div>
   <div v-if="userStore.currentMsgUser.id" class="flex-1 p-20">
-    <div v-for="(i, index) in currentMsgList" :key="index" class="my-10">
+    <div v-for="(i, index) in messageStore.currentMsgList" :key="index" class="my-10">
       <div :class="`flex ${i.sender.id === userStore.currentUser.id ? 'flex-row-reverse' : ''}`">
         {{ i.sender.username }}({{ i.sentAt }}):
       </div>

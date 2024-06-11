@@ -1,40 +1,25 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { io } from 'socket.io-client'
 import { useMessage } from 'naive-ui'
 import { useRouter } from 'vue-router'
 import { Add, Search, Settings } from '@vicons/ionicons5'
 import Friend from '@/components/Friend.vue'
 import AddFriend from '@/components/AddFriend.vue'
-import type { IMessage, IMessageBox } from '@/types/message'
+import type { IMessage } from '@/types/message'
 import type { User } from '@/types/users'
 import { useUserStore } from '@/stores/user'
+import { useMessageStore } from '@/stores/message'
 
 const socket = io('http://localhost:9000')
 const message = useMessage()
 const router = useRouter()
 const userStore = useUserStore()
+const messageStore = useMessageStore()
 
 const visible = ref(false)
 function getUserVisible() {
   visible.value = true
-}
-
-// 和当前登录用户的所有聊天记录集合
-const msgList = ref<IMessageBox[]>([] as IMessageBox[])
-
-function localSendMsg(msg: IMessage) {
-  const user = msgList.value.find(e => e.user.id === userStore.currentMsgUser.id)
-  if (user) {
-    user.messages.push(msg)
-  }
-  else {
-    msgList.value.push({
-      user: userStore.currentMsgUser,
-      messages: [msg],
-      unReadMessages: [],
-    })
-  }
 }
 
 const addFriendReqList = ref<User[]>([])
@@ -53,22 +38,6 @@ function addFriendSure(id: bigint) {
   addvisible.value = false
   message.success('添加好友成功')
 }
-
-function serverSendMsg(message: IMessage) {
-  const user = msgList.value.find(e => e.user.id === message.sender.id)
-  if (user) {
-    user.messages.push(message)
-  }
-  else {
-    msgList.value.push({
-      user: message.receiver,
-      messages: [message],
-      unReadMessages: [],
-    })
-  }
-}
-
-const currentMsgList = computed(() => msgList.value.find(e => e.user.id === userStore.currentMsgUser.id)?.messages || [])
 
 function logout() {
   socket.emit('offline', userStore.currentUser.id)
@@ -89,11 +58,7 @@ onMounted(() => {
     userStore.friends.forEach((e) => {
       const msg = data.message.filter(item => item.receiver.id === e.id || item.sender.id === e.id)
       const unreadMsg = data.offlineMessage.filter(item => item.receiver.id === e.id)
-      msgList.value.push({
-        user: e,
-        messages: msg,
-        unReadMessages: unreadMsg,
-      })
+      messageStore.addNewMsgList({ user: e, messages: msg, unReadMessages: unreadMsg })
     })
   })
 })
@@ -142,7 +107,7 @@ onMounted(() => {
     </div>
 
     <div class="flex-1 flex flex-col">
-      <RouterView :socket="socket" :current-msg-list="currentMsgList" @local-send-msg="localSendMsg" @server-send-msg="serverSendMsg" />
+      <RouterView :socket="socket" />
     </div>
 
     <n-modal v-model:show="addvisible">
