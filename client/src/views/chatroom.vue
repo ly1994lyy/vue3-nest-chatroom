@@ -1,29 +1,25 @@
 <script setup lang="ts">
-import type { Socket } from 'socket.io-client'
 import { onMounted, ref } from 'vue'
 import { Send } from '@vicons/ionicons5'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 import type { IMessage } from '@/types/message'
 import { useMessageStore } from '@/stores/message'
+import { useSocket } from '@/hooks/useSocket'
 
-interface IProp {
-  socket: Socket
-}
-const props = defineProps<IProp>()
-const emits = defineEmits(['localSendMsg', 'serverSendMsg'])
+const { socket } = useSocket()
 
 const userStore = useUserStore()
 const messageStore = useMessageStore()
 const router = useRouter()
 
 const msg = ref('')
-props.socket.on('receiveMsg', (data) => {
-  emits('serverSendMsg', data)
+socket.on('receiveMsg', (data) => {
+  messageStore.receiveMessage(data)
 })
 
 function send() {
-  props.socket.emit('sendMsg', {
+  socket.emit('sendMsg', {
     sender: userStore.currentUser,
     receiver: userStore.currentMsgUser,
     content: msg.value,

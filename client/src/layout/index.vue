@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
-import { io } from 'socket.io-client'
 import { useMessage } from 'naive-ui'
 import { useRouter } from 'vue-router'
 import { Add, Search, Settings } from '@vicons/ionicons5'
@@ -10,8 +9,9 @@ import type { IMessage } from '@/types/message'
 import type { User } from '@/types/users'
 import { useUserStore } from '@/stores/user'
 import { useMessageStore } from '@/stores/message'
+import { useSocket } from '@/hooks/useSocket'
 
-const socket = io('http://localhost:9000')
+const { socket } = useSocket()
 const message = useMessage()
 const router = useRouter()
 const userStore = useUserStore()
@@ -107,7 +107,7 @@ onMounted(() => {
     </div>
 
     <div class="flex-1 flex flex-col">
-      <RouterView :socket="socket" />
+      <RouterView />
     </div>
 
     <n-modal v-model:show="addvisible">
