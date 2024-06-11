@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { ref } from 'vue'
 import { Send } from '@vicons/ionicons5'
-import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 import type { IMessage } from '@/types/message'
 import { useMessageStore } from '@/stores/message'
@@ -11,7 +10,6 @@ const { socket } = useSocket()
 
 const userStore = useUserStore()
 const messageStore = useMessageStore()
-const router = useRouter()
 
 const msg = ref('')
 socket.on('receiveMsg', (data) => {
@@ -29,13 +27,6 @@ function send() {
   })
   msg.value = ''
 }
-
-onMounted(() => {
-  if (localStorage.getItem('user'))
-    userStore.setCurrentUser(JSON.parse(localStorage.getItem('user')!))
-  else
-    router.push('/login')
-})
 </script>
 
 <template>

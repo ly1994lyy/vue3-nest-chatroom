@@ -50,17 +50,23 @@ socket.on('disconnect', () => {
 })
 
 onMounted(() => {
-  socket.on('connect', () => {
-    message.success('连接成功')
-  })
-  socket.emit('online', userStore.currentUser, (data: { friends: User[], message: IMessage[], offlineMessage: IMessage[] }) => {
-    userStore.setFriends(data.friends.filter(i => i.id !== userStore.currentUser.id))
-    userStore.friends.forEach((e) => {
-      const msg = data.message.filter(item => item.receiver.id === e.id || item.sender.id === e.id)
-      const unreadMsg = data.offlineMessage.filter(item => item.sender.id === e.id)
-      messageStore.addNewMsgList({ user: e, messages: msg, unReadMessages: unreadMsg })
+  if (localStorage.getItem('user')) {
+    userStore.setCurrentUser(JSON.parse(localStorage.getItem('user')!))
+    socket.on('connect', () => {
+      message.success('连接成功')
     })
-  })
+    socket.emit('online', userStore.currentUser, (data: { friends: User[], message: IMessage[], offlineMessage: IMessage[] }) => {
+      userStore.setFriends(data.friends.filter(i => i.id !== userStore.currentUser.id))
+      userStore.friends.forEach((e) => {
+        const msg = data.message.filter(item => item.receiver.id === e.id || item.sender.id === e.id)
+        const unreadMsg = data.offlineMessage.filter(item => item.sender.id === e.id)
+        messageStore.addNewMsgList({ user: e, messages: msg, unReadMessages: unreadMsg })
+      })
+    })
+  }
+  else {
+    router.push('/login')
+  }
 })
 </script>
 
