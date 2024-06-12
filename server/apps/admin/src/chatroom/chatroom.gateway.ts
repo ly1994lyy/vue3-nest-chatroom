@@ -39,16 +39,12 @@ export class ChatroomGateway {
       client.disconnect();
       return;
     }
-    const friends = await this.friendshipService.getFriends(onlineUser.id);
     await this.redisService.storeSocketId(onlineUser.id, client.id);
-    const message = await this.messageService.getMessagesForUser(onlineUser.id);
-    const offlineMessage = await this.redisService.getOfflineMessage(
-      onlineUser.id,
-    );
-    await this.redisService.clearOfflineMessages(onlineUser.id);
+    const { friends, messages, offlineMessage } =
+      await this.chatroomService.pushUserInfo(onlineUser.id);
     return {
       friends,
-      message,
+      messages,
       offlineMessage,
     };
   }
@@ -80,6 +76,10 @@ export class ChatroomGateway {
         sentAt: new Date(),
       });
     }
+    return {
+      ...sendInfo,
+      sentAt: new Date(),
+    };
   }
 
   @SubscribeMessage('addFriendRequest')
@@ -100,8 +100,21 @@ export class ChatroomGateway {
 
   @SubscribeMessage('addFriend')
   async addFriend(@MessageBody() add: addFriendType) {
-    console.log(add);
     await this.friendshipService.addFriend(add.userId, add.friendId);
+    const userSocketId = await this.redisService.getSocketId(add.userId);
+    const friendSocketId = await this.redisService.getSocketId(add.friendId);
+    if (userSocketId) {
+      await this.chatroomService.pushUserInfo(
+        add.userId,
+        this.server.sockets.sockets.get(userSocketId),
+      );
+    }
+    if (friendSocketId) {
+      await this.chatroomService.pushUserInfo(
+        add.friendId,
+        this.server.sockets.sockets.get(friendSocketId),
+      );
+    }
   }
 
   @SubscribeMessage('searchUser')

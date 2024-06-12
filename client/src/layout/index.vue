@@ -5,8 +5,7 @@ import { useRouter } from 'vue-router'
 import { Add, Search, Settings } from '@vicons/ionicons5'
 import Friend from '@/components/Friend.vue'
 import AddFriend from '@/components/AddFriend.vue'
-import type { IMessage } from '@/types/message'
-import type { User } from '@/types/users'
+import type { IUserInfo, User } from '@/types/users'
 import { useUserStore } from '@/stores/user'
 import { useMessageStore } from '@/stores/message'
 import { useSocket } from '@/hooks/useSocket'
@@ -39,6 +38,19 @@ function addFriendSure(id: bigint) {
   message.success('添加好友成功')
 }
 
+function handleUserInfo(info: IUserInfo) {
+  userStore.setFriends(info.friends?.filter(i => i.id !== userStore.currentUser.id))
+  userStore.friends.forEach((e) => {
+    const msg = info.messages.filter(item => item.receiver.id === e.id || item.sender.id === e.id)
+    const unreadMsg = info.offlineMessage.filter(item => item.sender.id === e.id)
+    messageStore.addNewMsgList({ user: e, messages: msg, unReadMessages: unreadMsg })
+  })
+}
+
+socket.on('getUserInfo', (data: IUserInfo) => {
+  handleUserInfo(data)
+})
+
 function logout() {
   socket.emit('offline', userStore.currentUser.id)
   localStorage.removeItem('user')
@@ -55,13 +67,8 @@ onMounted(() => {
     socket.on('connect', () => {
       message.success('连接成功')
     })
-    socket.emit('online', userStore.currentUser, (data: { friends: User[], message: IMessage[], offlineMessage: IMessage[] }) => {
-      userStore.setFriends(data.friends.filter(i => i.id !== userStore.currentUser.id))
-      userStore.friends.forEach((e) => {
-        const msg = data.message.filter(item => item.receiver.id === e.id || item.sender.id === e.id)
-        const unreadMsg = data.offlineMessage.filter(item => item.sender.id === e.id)
-        messageStore.addNewMsgList({ user: e, messages: msg, unReadMessages: unreadMsg })
-      })
+    socket.emit('online', userStore.currentUser, (data: IUserInfo) => {
+      handleUserInfo(data)
     })
   }
   else {
