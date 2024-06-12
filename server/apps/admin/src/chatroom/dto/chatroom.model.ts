@@ -15,7 +15,8 @@ export type messageType = {
   sentAt: Date;
 };
 
-export type addFriendType = {
+export type handleFriendType = {
   userId: bigint;
   friendId: bigint;
+  result?: boolean;
 };

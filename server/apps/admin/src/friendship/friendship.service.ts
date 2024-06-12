@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Friendship } from './entities/friendship.entity';
 import { UserService } from '../user/user.service';
+import { WsException } from '@nestjs/websockets';
 
 @Injectable()
 export class FriendshipService {
@@ -27,9 +28,21 @@ export class FriendshipService {
       where: [{ user: { id: userId } }, { friend: { id: userId } }],
       relations: ['friend', 'user'],
     });
-    const friends = friendships.map((friendship) =>
+    return friendships.map((friendship) =>
       friendship.user.id === userId ? friendship.friend : friendship.user,
     );
-    return friends;
+  }
+
+  async removeFriend(userId: bigint, friendId: bigint) {
+    const friendships = await this.friendshipRepository.find({
+      where: [
+        { user: { id: userId }, friend: { id: friendId } },
+        { user: { id: friendId }, friend: { id: userId } },
+      ],
+    });
+    if (!friendships) {
+      throw new WsException('Friendship not found');
+    }
+    await this.friendshipRepository.remove(friendships);
   }
 }

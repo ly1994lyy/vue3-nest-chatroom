@@ -8,7 +8,11 @@ import {
 } from '@nestjs/websockets';
 import { ChatroomService } from './chatroom.service';
 import { Server, Socket } from 'socket.io';
-import { addFriendType, messageType, userInfoDto } from './dto/chatroom.model';
+import {
+  handleFriendType,
+  messageType,
+  userInfoDto,
+} from './dto/chatroom.model';
 import * as process from 'process';
 import { FriendshipService } from '../friendship/friendship.service';
 import { MessageService } from '../message/message.service';
@@ -83,10 +87,9 @@ export class ChatroomGateway {
   }
 
   @SubscribeMessage('addFriendRequest')
-  async addFriendRequest(@MessageBody() add: addFriendType) {
+  async addFriendRequest(@MessageBody() add: handleFriendType) {
     const receiveSocketId = await this.redisService.getSocketId(add.friendId);
     const user = await this.userService.findOneById(add.userId);
-    console.log(user);
     if (receiveSocketId) {
       this.server.sockets.sockets
         .get(receiveSocketId)
@@ -99,19 +102,53 @@ export class ChatroomGateway {
   }
 
   @SubscribeMessage('addFriend')
-  async addFriend(@MessageBody() add: addFriendType) {
-    await this.friendshipService.addFriend(add.userId, add.friendId);
+  async addFriend(@MessageBody() add: handleFriendType) {
     const userSocketId = await this.redisService.getSocketId(add.userId);
+    const user = await this.userService.findOneById(add.friendId);
+    if (!add.result) {
+      if (userSocketId) {
+        this.server.sockets.sockets.get(userSocketId).emit('addFriendResult', {
+          result: false,
+          user,
+        });
+        return;
+      }
+      return;
+    }
+    await this.friendshipService.addFriend(add.userId, add.friendId);
     const friendSocketId = await this.redisService.getSocketId(add.friendId);
     if (userSocketId) {
+      const userClient = this.server.sockets.sockets.get(userSocketId);
+      await this.chatroomService.pushUserInfo(add.userId, userClient);
+      userClient.emit('addFriendResult', {
+        result: true,
+        user,
+      });
+    }
+    if (friendSocketId) {
+      const friendClient = this.server.sockets.sockets.get(friendSocketId);
+      await this.chatroomService.pushUserInfo(add.friendId, friendClient);
+      friendClient.emit('addFriendResult', {
+        result: true,
+        user,
+      });
+    }
+  }
+
+  @SubscribeMessage('deleteFriend')
+  async deleteFriend(@MessageBody() del: handleFriendType) {
+    await this.friendshipService.removeFriend(del.userId, del.friendId);
+    const userSocketId = await this.redisService.getSocketId(del.userId);
+    const friendSocketId = await this.redisService.getSocketId(del.friendId);
+    if (userSocketId) {
       await this.chatroomService.pushUserInfo(
-        add.userId,
+        del.userId,
         this.server.sockets.sockets.get(userSocketId),
       );
     }
     if (friendSocketId) {
       await this.chatroomService.pushUserInfo(
-        add.friendId,
+        del.friendId,
         this.server.sockets.sockets.get(friendSocketId),
       );
     }
