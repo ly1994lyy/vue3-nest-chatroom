@@ -5,6 +5,7 @@ import { useRouter } from 'vue-router'
 import { Add, Search, Settings } from '@vicons/ionicons5'
 import Friend from '@/components/Friend.vue'
 import AddFriend from '@/components/AddFriend.vue'
+import SureAddFriend from '@/components/SureAddFriend.vue'
 import type { IUserInfo, User } from '@/types/users'
 import { useUserStore } from '@/stores/user'
 import { useMessageStore } from '@/stores/message'
@@ -32,11 +33,12 @@ socket.on('addFriendResponse', (data: { user: User }) => {
   addFriendReqList.value.push(data.user)
 })
 
-function addFriendSure(id: bigint) {
-  socket.emit('addFriend', { userId: id, friendId: userStore.currentUser.id })
-  addvisible.value = false
-  message.success('添加好友成功')
-}
+socket.on('addFriendResult', (data: { result: boolean, user: User }) => {
+  if (!data.result)
+    message.error(`${data.user.username}拒绝了您的好友申请！`)
+  else
+    message.success(`${data.user.username}同意了您的好友申请！`)
+})
 
 function handleUserInfo(info: IUserInfo) {
   userStore.setFriends(info.friends?.filter(i => i.id !== userStore.currentUser.id))
@@ -123,23 +125,7 @@ onMounted(() => {
       <RouterView />
     </div>
 
-    <n-modal v-model:show="addvisible">
-      <n-card
-        style="width: 600px"
-        title="添加好友"
-        :bordered="false"
-        size="huge"
-        role="dialog"
-        aria-modal="true"
-      >
-        <div v-for="user in addFriendReqList" :key="`${user.id}`">
-          {{ user.username }}请求添加好友<n-button type="primary" @click="addFriendSure(user.id)">
-            确认
-          </n-button>
-        </div>
-      </n-card>
-    </n-modal>
-
+    <SureAddFriend v-if="addvisible" v-model="addvisible" :add-friend-req-list="addFriendReqList" />
     <AddFriend v-if="visible" v-model="visible" :socket="socket" />
   </div>
 </template>

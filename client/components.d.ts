@@ -30,5 +30,6 @@ declare module 'vue' {
     NSpace: typeof import('naive-ui')['NSpace']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    SureAddFriend: typeof import('./src/components/SureAddFriend.vue')['default']
   }
 }

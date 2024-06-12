@@ -13,3 +13,13 @@ export interface IMessageBox {
   messages: IMessage[]
   unReadMessages: IMessage[]
 }
+
+enum OfflineMessageType {
+  offlineMsg,
+  addFriend,
+}
+
+export interface IOfflineMessage {
+  type: OfflineMessageType
+  messages: IMessage[]
+}
