@@ -128,10 +128,6 @@ export class ChatroomGateway {
     if (friendSocketId) {
       const friendClient = this.server.sockets.sockets.get(friendSocketId);
       await this.chatroomService.pushUserInfo(add.friendId, friendClient);
-      friendClient.emit('addFriendResult', {
-        result: true,
-        user,
-      });
     }
   }
 
