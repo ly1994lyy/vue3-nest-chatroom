@@ -41,6 +41,9 @@ function send() {
         {{ userStore.currentMsgUser.username }}
       </div>
     </div>
+    <div>
+      <DeleteFriend />
+    </div>
   </div>
   <div v-if="userStore.currentMsgUser.id" class="flex-1 p-20 overflow-auto">
     <div v-for="(i, index) in messageStore.currentMsgList" :key="index" class="my-10">

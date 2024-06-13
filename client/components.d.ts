@@ -8,6 +8,7 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     AddFriend: typeof import('./src/components/AddFriend.vue')['default']
+    DeleteFriend: typeof import('./src/components/DeleteFriend.vue')['default']
     Friend: typeof import('./src/components/Friend.vue')['default']
     HelloWorld: typeof import('./src/components/HelloWorld.vue')['default']
     NAvatar: typeof import('naive-ui')['NAvatar']
