@@ -22,7 +22,6 @@ function getUserVisible() {
   visible.value = true
 }
 
-const addFriendReqList = ref<User[]>([])
 const addvisible = ref(false)
 
 function openAddFriend() {
@@ -30,7 +29,7 @@ function openAddFriend() {
 }
 
 socket.on('addFriendResponse', (data: { user: User }) => {
-  addFriendReqList.value.push(data.user)
+  userStore.pushAddFriendReq(data.user)
 })
 
 socket.on('addFriendResult', (data: { result: boolean, user: User }) => {
@@ -95,9 +94,9 @@ onMounted(() => {
         </n-button>
       </div>
       <div class="flex-1">
-        <div v-if="addFriendReqList.length" class="p-20" @click="openAddFriend">
+        <div v-if="userStore.addFriendReqList.length" class="p-20" @click="openAddFriend">
           <n-button class="w-full" type="error">
-            有{{ addFriendReqList.length }}个好友请求
+            有{{ userStore.addFriendReqList.length }}个好友请求
           </n-button>
         </div>
 
@@ -125,7 +124,7 @@ onMounted(() => {
       <RouterView />
     </div>
 
-    <SureAddFriend v-if="addvisible" v-model="addvisible" :add-friend-req-list="addFriendReqList" />
+    <SureAddFriend v-if="addvisible" v-model="addvisible" />
     <AddFriend v-if="visible" v-model="visible" :socket="socket" />
   </div>
 </template>

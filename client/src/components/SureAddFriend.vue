@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { useMessage } from 'naive-ui'
-import type { User } from '@/types/users'
 import { useSocket } from '@/hooks/useSocket'
 import { useUserStore } from '@/stores/user'
 
@@ -9,17 +7,15 @@ const emits = defineEmits(['update:modelValue'])
 
 const { socket } = useSocket()
 const userStore = useUserStore()
-const message = useMessage()
 
 interface IProps {
   modelValue: boolean
-  addFriendReqList: User[]
 }
 
 function handleAddReq(id: bigint, result: boolean) {
   socket.emit('addFriend', { userId: id, friendId: userStore.currentUser.id, result })
+  userStore.handleAddFriendReq(id)
   emits('update:modelValue', false)
-  message.success('添加好友成功')
 }
 </script>
 
@@ -33,7 +29,7 @@ function handleAddReq(id: bigint, result: boolean) {
       role="dialog"
       aria-modal="true"
     >
-      <div v-for="user in addFriendReqList" :key="`${user.id}`" class="flex items-center my-10">
+      <div v-for="user in userStore.addFriendReqList" :key="`${user.id}`" class="flex items-center my-10">
         <div>
           {{ user.username }}请求添加好友
         </div>

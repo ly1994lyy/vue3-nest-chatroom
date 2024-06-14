@@ -10,6 +10,8 @@ export const useUserStore = defineStore('user', {
       currentMsgUser: {} as User,
       // 所有联系人
       friends: [] as User[],
+      // 所有好友请求
+      addFriendReqList: [] as User[],
     }
   },
   actions: {
@@ -21,6 +23,14 @@ export const useUserStore = defineStore('user', {
     },
     setFriends(friends: User[]) {
       this.friends = friends
+    },
+    handleAddFriendReq(userId: bigint) {
+      const handleUser = this.addFriendReqList.find(e => e.id === userId)
+      if (handleUser)
+        this.addFriendReqList = this.addFriendReqList.filter(e => e.id !== userId)
+    },
+    pushAddFriendReq(user: User) {
+      this.addFriendReqList.push(user)
     },
   },
 })
