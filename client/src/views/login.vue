@@ -26,8 +26,8 @@ async function login() {
 </script>
 
 <template>
-  <div class="f-center items-center w-screen h-screen bg-gray-100">
-    <div class="w-400 h-400 md:h-500 bg-white rounded-20 f-center flex-col shadow-2xl">
+  <div class="f-center items-center w-screen h-screen bg-gray-100 bg-no-repeat bg-cover" style="background-image: url('/background.jpg');">
+    <div class="w-400 h-400 md:h-500 bg-white rounded-20 f-center flex-col shadow-2xl opacity-70">
       <h1
         p="y-20" text="35 black" font="bold"
       >
