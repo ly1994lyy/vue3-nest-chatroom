@@ -32,5 +32,13 @@ export const useMessageStore = defineStore('message', {
     addNewMsgList(msg: IMessageBox) {
       this.msgList.push(msg)
     },
+    readMessage() {
+      const userStore = useUserStore()
+      if (userStore.currentMsgUser.id) {
+        const user = this.msgList.find(e => e.user.id === userStore.currentMsgUser.id)
+        if (user)
+          user.unReadMessages = []
+      }
+    },
   },
 })

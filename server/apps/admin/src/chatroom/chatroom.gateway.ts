@@ -101,6 +101,11 @@ export class ChatroomGateway {
     }
   }
 
+  @SubscribeMessage('readMessage')
+  async readMessage(@MessageBody() query: handleFriendType) {
+    await this.redisService.clearOfflineMessages(query.userId, query.friendId);
+  }
+
   @SubscribeMessage('addFriend')
   async addFriend(@MessageBody() add: handleFriendType) {
     const userSocketId = await this.redisService.getSocketId(add.userId);

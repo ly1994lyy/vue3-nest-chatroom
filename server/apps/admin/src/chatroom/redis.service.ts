@@ -44,8 +44,17 @@ export class RedisService {
     return messages.map((msg) => JSON.parse(msg));
   }
 
-  async clearOfflineMessages(userId: bigint): Promise<void> {
-    await this.redisClient.del(`user:${userId}:offlineMessages`);
+  async clearOfflineMessages(userId: bigint, friendId: bigint): Promise<void> {
+    const offlineMsgs = await this.getOfflineMessage(userId);
+    offlineMsgs.forEach(async (e) => {
+      if (e.sender.id === friendId) {
+        await this.redisClient.lRem(
+          `user:${userId}:offlineMessages`,
+          1,
+          JSON.stringify(e),
+        );
+      }
+    });
   }
 
   async storeAddFriendRequestMessage(
