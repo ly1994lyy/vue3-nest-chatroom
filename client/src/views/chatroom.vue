@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { ref } from 'vue'
 import { Send } from '@vicons/ionicons5'
 import { useUserStore } from '@/stores/user'
 import type { IMessage } from '@/types/message'

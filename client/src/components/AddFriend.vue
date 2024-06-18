@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { ref } from 'vue'
 import type { Socket } from 'socket.io-client'
 import type { User } from '@/types/users'
 import { useUserStore } from '@/stores/user'

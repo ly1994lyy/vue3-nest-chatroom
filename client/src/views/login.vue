@@ -1,7 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
 import { LockClosed, Person } from '@vicons/ionicons5'
-import { useRouter } from 'vue-router'
 import { loginApi } from '@/apis/login.ts'
 import { useUserStore } from '@/stores/user.ts'
 
@@ -63,23 +61,4 @@ async function login() {
 </template>
 
 <style lang="less" scoped>
-.login-container {
-  width: 100vw;
-  height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background-color: #f5f5f5;
-  .login-box {
-    width: 40vw;
-    height: 60vh;
-    background-color: #fff;
-    border-radius: 5px;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-  }
-}
 </style>

@@ -13,6 +13,7 @@ export default defineConfig({
     AutoImport({
       imports: [
         'vue',
+        'vue-router',
         {
           'naive-ui': [
             'useDialog',
