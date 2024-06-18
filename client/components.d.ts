@@ -8,6 +8,7 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     AddFriend: typeof import('./src/components/AddFriend.vue')['default']
+    CreateGroup: typeof import('./src/components/CreateGroup.vue')['default']
     DeleteFriend: typeof import('./src/components/DeleteFriend.vue')['default']
     Friend: typeof import('./src/components/Friend.vue')['default']
     HelloWorld: typeof import('./src/components/HelloWorld.vue')['default']
@@ -15,7 +16,10 @@ declare module 'vue' {
     NBadge: typeof import('naive-ui')['NBadge']
     NButton: typeof import('naive-ui')['NButton']
     NCard: typeof import('naive-ui')['NCard']
+    NCheckbox: typeof import('naive-ui')['NCheckbox']
+    NCheckboxGroup: typeof import('naive-ui')['NCheckboxGroup']
     NDialogProvider: typeof import('naive-ui')['NDialogProvider']
+    NDropdown: typeof import('naive-ui')['NDropdown']
     NForm: typeof import('naive-ui')['NForm']
     NFormItem: typeof import('naive-ui')['NFormItem']
     NIcon: typeof import('naive-ui')['NIcon']

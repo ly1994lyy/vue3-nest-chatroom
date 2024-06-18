@@ -1,9 +1,6 @@
 <script setup lang="ts">
 import { useMessage } from 'naive-ui'
 import { Add, Search, Settings } from '@vicons/ionicons5'
-import Friend from '@/components/Friend.vue'
-import AddFriend from '@/components/AddFriend.vue'
-import SureAddFriend from '@/components/SureAddFriend.vue'
 import type { IUserInfo, User } from '@/types/users'
 import { useUserStore } from '@/stores/user'
 import { useMessageStore } from '@/stores/message'
@@ -15,9 +12,33 @@ const router = useRouter()
 const userStore = useUserStore()
 const messageStore = useMessageStore()
 
+const options = [
+  {
+    label: '添加好友',
+    key: 'addFriend',
+  },
+  {
+    label: '建立群聊',
+    key: 'createGroup',
+  },
+]
+
 const visible = ref(false)
-function getUserVisible() {
+const createGroupVisible = ref(false)
+
+function openAddFriendDialog() {
   visible.value = true
+}
+
+function openCreateGroupDialog() {
+  createGroupVisible.value = true
+}
+
+function handleSelect(val: string) {
+  if (val === 'addFriend')
+    openAddFriendDialog()
+  else
+    openCreateGroupDialog()
 }
 
 const addvisible = ref(false)
@@ -79,17 +100,23 @@ onMounted(() => {
 <template>
   <div class="fullscreen flex">
     <div class="h-full w-300 flex flex-col b-r-solid b-r-1 border-r-coolGray">
-      <div class="h-60 flex items-center  px-20">
-        <n-input class="w-60">
-          <template #suffix>
-            <n-icon :component="Search" />
-          </template>
-        </n-input>
-        <n-button circle @click="getUserVisible">
-          <template #icon>
-            <n-icon><Add /></n-icon>
-          </template>
-        </n-button>
+      <div class="h-60 flex items-center justify-between px-20">
+        <div class="w-220">
+          <n-input>
+            <template #suffix>
+              <n-icon :component="Search" />
+            </template>
+          </n-input>
+        </div>
+        <div>
+          <n-dropdown trigger="hover" :options="options" @select="handleSelect">
+            <n-button circle>
+              <template #icon>
+                <n-icon><Add /></n-icon>
+              </template>
+            </n-button>
+          </n-dropdown>
+        </div>
       </div>
       <div class="flex-1">
         <div v-if="userStore.addFriendReqList.length" class="p-20" @click="openAddFriend">
@@ -123,6 +150,7 @@ onMounted(() => {
     </div>
 
     <SureAddFriend v-if="addvisible" v-model="addvisible" />
+    <CreateGroup v-if="createGroupVisible" v-model="createGroupVisible" />
     <AddFriend v-if="visible" v-model="visible" :socket="socket" />
   </div>
 </template>
