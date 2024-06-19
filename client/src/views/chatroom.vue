@@ -4,6 +4,7 @@ import { useUserStore } from '@/stores/user'
 import type { IMessage } from '@/types/message'
 import { useMessageStore } from '@/stores/message'
 import { useSocket } from '@/hooks/useSocket'
+import { formateDataTime } from '@/utils/data'
 
 const { socket } = useSocket()
 
@@ -47,7 +48,7 @@ function send() {
   <div v-if="userStore.currentMsgUser.id" class="flex-1 p-20 overflow-auto">
     <div v-for="(i, index) in messageStore.currentMsgList" :key="index" class="my-10">
       <div :class="`flex ${i.sender.id === userStore.currentUser.id ? 'flex-row-reverse' : ''}`">
-        {{ i.sender.username }}({{ i.sentAt }}):
+        {{ i.sender.username }}({{ formateDataTime(i.sentAt.toString()) }}):
       </div>
       <div :class="`flex ${i.sender.id === userStore.currentUser.id ? 'flex-row-reverse' : ''}`">
         {{ i.content }}

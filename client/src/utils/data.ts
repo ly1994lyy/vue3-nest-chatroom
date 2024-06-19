@@ -1,5 +1,5 @@
-import moment from 'moment'
+import dayjs from 'dayjs'
 
-export function formateDataTime(data: number) {
-  return moment(new Date(data)).format('YYYY-MM-DD HH:mm:ss')
+export function formateDataTime(data: string) {
+  return dayjs(data).format('YYYY-MM-DD HH:mm:ss')
 }
