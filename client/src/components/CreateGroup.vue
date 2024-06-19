@@ -8,11 +8,15 @@ interface IProps {
 const props = defineProps<IProps>()
 const emits = defineEmits(['update:modelValue'])
 const userStore = useUserStore()
-const groups = ref(null)
 const { socket } = useSocket()
 
+const form = ref({
+  name: '',
+  members: [],
+})
+
 function createGroup() {
-  socket.emit('createGroup', groups.value)
+  socket.emit('createGroup', { ...form.value, createBy: userStore.currentUser.id })
   emits('update:modelValue', false)
 }
 </script>
@@ -27,11 +31,18 @@ function createGroup() {
       role="dialog"
       aria-modal="true"
     >
-      <n-checkbox-group v-model:value="groups">
-        <n-space item-style="display: flex;">
-          <n-checkbox v-for="user in userStore.friends" :key="user.id" :value="user.id" :label="user.username" />
-        </n-space>
-      </n-checkbox-group>
+      <n-form :model="form">
+        <n-form-item path="name" label="群组名称">
+          <n-input v-model:value="form.name" />
+        </n-form-item>
+        <n-form-item path="members" label="成员">
+          <n-checkbox-group v-model:value="form.members">
+            <n-space item-style="display: flex;">
+              <n-checkbox v-for="user in userStore.friends" :key="user.id" :value="user.id" :label="user.username" />
+            </n-space>
+          </n-checkbox-group>
+        </n-form-item>
+      </n-form>
       <template #footer>
         <div class="flex flex-row-reverse">
           <n-button @click="emits('update:modelValue', false)">

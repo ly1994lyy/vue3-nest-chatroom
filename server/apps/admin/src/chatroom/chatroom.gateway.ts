@@ -17,6 +17,8 @@ import * as process from 'process';
 import { FriendshipService } from '../friendship/friendship.service';
 import { MessageService } from '../message/message.service';
 import { RedisService } from './redis.service';
+import { CreateGroupDto } from '../group/dto/create-group.dto';
+import { GroupService } from '../group/group.service';
 
 @WebSocketGateway({
   cors: {
@@ -32,6 +34,7 @@ export class ChatroomGateway {
     private readonly userService: UserService,
     private readonly messageService: MessageService,
     private readonly redisService: RedisService,
+    private readonly groupService: GroupService,
   ) {}
 
   @SubscribeMessage('online')
@@ -44,12 +47,13 @@ export class ChatroomGateway {
       return;
     }
     await this.redisService.storeSocketId(onlineUser.id, client.id);
-    const { friends, messages, offlineMessage } =
+    const { friends, messages, offlineMessage, groups } =
       await this.chatroomService.pushUserInfo(onlineUser.id);
     return {
       friends,
       messages,
       offlineMessage,
+      groups,
     };
   }
 
@@ -160,6 +164,14 @@ export class ChatroomGateway {
     const user = await this.userService.findUserByName(userName);
     return {
       data: user,
+    };
+  }
+
+  @SubscribeMessage('createGroup')
+  async createGroup(@MessageBody() createGroupDto: CreateGroupDto) {
+    const groups = await this.groupService.createGroup(createGroupDto);
+    return {
+      data: groups,
     };
   }
 }

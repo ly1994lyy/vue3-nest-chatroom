@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import { ApiException } from '@app/common/http-exception/api.exception';
 import { ErrorCodeEnum } from '@app/common/enums/errorCodeEnum';
@@ -49,6 +49,10 @@ export class UserService {
     const user = await this.findOneById(id);
     user.password = updateUserDto.password;
     return await this.user.update('' + id, user);
+  }
+
+  async findByIds(userIds: bigint[]) {
+    return await this.user.find({ where: { id: In(userIds) } });
   }
 
   remove(id: number) {

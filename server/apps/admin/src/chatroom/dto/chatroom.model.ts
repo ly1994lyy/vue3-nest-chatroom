@@ -5,8 +5,6 @@ export type userInfoDto = {
   id: bigint;
 };
 
-export type onlineUserDto = userInfoDto & { socketId: string };
-
 export type messageType = {
   id?: bigint;
   sender: User;
