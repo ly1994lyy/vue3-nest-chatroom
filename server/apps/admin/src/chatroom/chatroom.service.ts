@@ -17,19 +17,20 @@ export class ChatroomService {
   //推送用户所有信息
   async pushUserInfo(userId: bigint, client?: Socket) {
     const messages = await this.messageService.getMessagesForUser(userId);
+    const groupsMses = await this.messageService.getMessageForGroup(userId);
     const offlineMessage = await this.redisService.getOfflineMessage(userId);
     const friends = await this.friendshipService.getFriends(userId);
     const groups = await this.groupService.findGroupById(userId);
     if (client) {
       client.emit('getUserInfo', {
-        messages,
+        messages: [...messages, ...groupsMses],
         offlineMessage,
         friends,
         groups,
       });
     }
     return {
-      messages,
+      messages: [...messages, ...groupsMses],
       offlineMessage,
       friends,
       groups,

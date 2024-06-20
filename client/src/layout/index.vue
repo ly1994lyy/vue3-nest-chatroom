@@ -98,6 +98,7 @@ onMounted(() => {
       message.success('连接成功')
     })
     socket.emit('online', userStore.currentUser, (data: IUserInfo) => {
+      console.log(data)
       handleUserInfo(data)
     })
   }

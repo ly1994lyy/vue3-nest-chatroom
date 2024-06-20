@@ -22,7 +22,11 @@ function clickFriend(user: User | Group) {
 <template>
   <div
     v-for="user in userStore.friends" :key="`${user.id}`"
-    :class="`flex cursor-pointer mb-10 p-20 h-50 items-center justify-between hover:bg-gray-100 ${user.id === userStore.currentMsgUser.id ? 'bg-coolgray-200' : ''}`"
+    :class="`flex
+    cursor-pointer
+    mb-10 p-20 h-50
+    items-center justify-between hover:bg-gray-100
+    ${(!isGroup(user) && user.id === userStore.currentMsgUser.id) ? 'bg-coolgray-200' : ''}`"
     @click="clickFriend(user)"
   >
     <div class="flex items-center">

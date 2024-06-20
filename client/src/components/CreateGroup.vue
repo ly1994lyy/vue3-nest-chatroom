@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useUserStore } from '@/stores/user'
 import { useSocket } from '@/hooks/useSocket.ts'
+import type { User } from '@/types/users'
 
 interface IProps {
   modelValue: boolean
@@ -38,7 +39,7 @@ function createGroup() {
         <n-form-item path="members" label="成员">
           <n-checkbox-group v-model:value="form.members">
             <n-space item-style="display: flex;">
-              <n-checkbox v-for="user in userStore.friends" :key="user.id" :value="user.id" :label="user.username" />
+              <n-checkbox v-for="user in userStore.friends.filter(e => (e as User).username)" :key="user.id" :value="user.id" :label="(user as User).username" />
             </n-space>
           </n-checkbox-group>
         </n-form-item>

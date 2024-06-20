@@ -2,7 +2,7 @@ import { GroupService } from '../group/group.service';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Message } from './entities/message.entity';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { UserService } from '../user/user.service';
 
 @Injectable()
@@ -32,7 +32,17 @@ export class MessageService {
   async getMessagesForUser(userId: bigint) {
     return await this.messageRepository.find({
       where: [{ sender: { id: userId } }, { receiver: { id: userId } }],
-      relations: ['sender', 'receiver', 'group'],
+      relations: ['sender', 'receiver'],
+      order: { sentAt: 'ASC' },
+    });
+  }
+
+  async getMessageForGroup(userId: bigint) {
+    const groups = await this.groupService.findGroupById(userId);
+    const groupIds = groups.map((group) => group.id);
+    return await this.messageRepository.find({
+      where: [{ group: { id: In(groupIds) } }],
+      relations: ['sender', 'group'],
       order: { sentAt: 'ASC' },
     });
   }
