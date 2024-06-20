@@ -1,3 +1,4 @@
+import { Group } from '../../group/entities/group.entity';
 import { User } from '../../user/entities/user.entity';
 
 export type userInfoDto = {
@@ -8,7 +9,8 @@ export type userInfoDto = {
 export type messageType = {
   id?: bigint;
   sender: User;
-  receiver: User;
+  receiver?: User;
+  group?: Group;
   content: string;
   sentAt: Date;
 };

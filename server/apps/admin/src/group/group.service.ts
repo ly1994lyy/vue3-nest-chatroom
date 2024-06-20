@@ -26,8 +26,12 @@ export class GroupService {
   async findGroupById(userId: bigint) {
     return await this.groupRepository
       .createQueryBuilder('group')
-      .innerJoinAndSelect('group.members', 'user')
+      .leftJoinAndSelect('group.members', 'user')
       .where('group.createdBy = :userId OR user.id = :userId', { userId })
       .getMany();
+  }
+
+  async findOneById(id: bigint) {
+    return await this.groupRepository.findOne({ where: { id } });
   }
 }

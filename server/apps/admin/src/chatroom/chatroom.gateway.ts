@@ -90,6 +90,16 @@ export class ChatroomGateway {
     };
   }
 
+  @SubscribeMessage('sendGroupMsg')
+  async sendGroupMsg(@MessageBody() sendInfo: messageType) {
+    await this.messageService.sendMessageToGroup(
+      sendInfo.sender.id,
+      sendInfo.group.id,
+      sendInfo.content,
+    );
+    console.log(sendInfo);
+  }
+
   @SubscribeMessage('addFriendRequest')
   async addFriendRequest(@MessageBody() add: handleFriendType) {
     const receiveSocketId = await this.redisService.getSocketId(add.friendId);

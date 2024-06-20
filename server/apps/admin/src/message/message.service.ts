@@ -36,4 +36,15 @@ export class MessageService {
       order: { sentAt: 'ASC' },
     });
   }
+
+  async sendMessageToGroup(senderId: bigint, groupId: bigint, content: string) {
+    const sender = await this.userService.findOneById(senderId);
+    const group = await this.groupService.findOneById(groupId);
+    const message = this.messageRepository.create({
+      sender,
+      group,
+      content,
+    });
+    return await this.messageRepository.save(message);
+  }
 }
