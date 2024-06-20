@@ -1,15 +1,18 @@
-import type { User } from './user1'
+import type { Group } from './group'
+import type { User } from './users'
 
 export interface IMessage {
   id: bigint
   sender: User
-  receiver: User
+  receiver?: User
+  group?: Group
   content: string
   sentAt: Date
 }
 
 export interface IMessageBox {
-  user: User
+  user?: User
+  group?: Group
   messages: IMessage[]
   unReadMessages: IMessage[]
 }

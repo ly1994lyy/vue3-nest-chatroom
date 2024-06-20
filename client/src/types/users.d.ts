@@ -1,3 +1,5 @@
+import type { Group } from './group'
+
 export interface User {
   id: bigint
   username: string
@@ -8,6 +10,7 @@ export interface User {
 
 export interface IUserInfo {
   friends: User[]
+  groups: Group[]
   messages: IMessage[]
   offlineMessage: IMessage[]
 }

@@ -12,12 +12,12 @@ export const useMessageStore = defineStore('message', {
   getters: {
     currentMsgList(state) {
       const userStore = useUserStore()
-      return state.msgList.find(e => e.user.id === userStore.currentMsgUser.id)?.messages || []
+      return state.msgList.find(e => e.user?.id === userStore.currentMsgUser.id)?.messages || []
     },
   },
   actions: {
     receiveMessage(msg: IMessage) {
-      const user = this.msgList.find(e => e.user.id === msg.sender.id || e.user.id === msg.receiver.id)
+      const user = this.msgList.find(e => e.user?.id === msg.sender.id || e.user?.id === msg.receiver?.id)
       if (user) {
         user.messages.push(msg)
       }
@@ -35,7 +35,7 @@ export const useMessageStore = defineStore('message', {
     readMessage() {
       const userStore = useUserStore()
       if (userStore.currentMsgUser.id) {
-        const user = this.msgList.find(e => e.user.id === userStore.currentMsgUser.id)
+        const user = this.msgList.find(e => e.user?.id === userStore.currentMsgUser.id)
         if (user)
           user.unReadMessages = []
       }

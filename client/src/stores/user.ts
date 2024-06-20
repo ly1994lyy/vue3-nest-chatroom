@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import type { User } from '@/types/users'
+import type { Group } from '@/types/group'
 
 export const useUserStore = defineStore('user', {
   state() {
@@ -9,7 +10,7 @@ export const useUserStore = defineStore('user', {
       // 当前聊天窗口的对象用户
       currentMsgUser: {} as User,
       // 所有联系人
-      friends: [] as User[],
+      friends: [] as (User | Group)[],
       // 所有好友请求
       addFriendReqList: [] as User[],
     }
@@ -21,7 +22,7 @@ export const useUserStore = defineStore('user', {
     setCurrentMsgUser(user: User) {
       this.currentMsgUser = user
     },
-    setFriends(friends: User[]) {
+    setFriends(friends: (User | Group)[]) {
       this.friends = friends
     },
     handleAddFriendReq(userId: bigint) {

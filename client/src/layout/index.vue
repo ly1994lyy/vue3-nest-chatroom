@@ -5,6 +5,7 @@ import type { IUserInfo, User } from '@/types/users'
 import { useUserStore } from '@/stores/user'
 import { useMessageStore } from '@/stores/message'
 import { useSocket } from '@/hooks/useSocket'
+import type { Group } from '@/types/group'
 
 const { socket } = useSocket()
 const message = useMessage()
@@ -59,11 +60,19 @@ socket.on('addFriendResult', (data: { result: boolean, user: User }) => {
 })
 
 function handleUserInfo(info: IUserInfo) {
-  userStore.setFriends(info.friends?.filter(i => i.id !== userStore.currentUser.id))
-  userStore.friends.forEach((e) => {
-    const msg = info.messages.filter(item => item.receiver.id === e.id || item.sender.id === e.id)
-    const unreadMsg = info.offlineMessage.filter(item => item.sender.id === e.id)
-    messageStore.addNewMsgList({ user: e, messages: msg, unReadMessages: unreadMsg })
+  const friends = [...info.friends?.filter(i => i.id !== userStore.currentUser.id), ...info.groups]
+  userStore.setFriends(friends)
+  userStore.friends.forEach((e: User | Group) => {
+    if ((e as User).username !== undefined) {
+      const msg = info.messages.filter(item => item.receiver.id === e.id || item.sender.id === e.id)
+      const unreadMsg = info.offlineMessage.filter(item => item.sender.id === e.id)
+      messageStore.addNewMsgList({ user: e as User, messages: msg, unReadMessages: unreadMsg })
+    }
+    else {
+      const msg = info.messages.filter(item => item.group?.id === e.id)
+      const unreadMsg = info.offlineMessage.filter(item => item.group?.id === e.id)
+      messageStore.addNewMsgList({ group: e as Group, messages: msg, unReadMessages: unreadMsg })
+    }
   })
 }
 

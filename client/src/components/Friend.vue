@@ -2,18 +2,23 @@
 import { useSocket } from '@/hooks/useSocket'
 import { useMessageStore } from '@/stores/message'
 import { useUserStore } from '@/stores/user'
+import type { Group } from '@/types/group'
 import type { User } from '@/types/users'
 
 const userStore = useUserStore()
 const messageStore = useMessageStore()
 const { socket } = useSocket()
 
-function clickFriend(user: User) {
-  userStore.setCurrentMsgUser(user)
-  if (messageStore.msgList.find(msg => msg.user.id === user.id)?.unReadMessages.length) {
+function clickFriend(user: User | Group) {
+  userStore.setCurrentMsgUser(user as User)
+  if (messageStore.msgList.find(msg => msg.user?.id === user.id)?.unReadMessages.length) {
     socket.emit('readMessage', { userId: userStore.currentUser.id, friendId: user.id })
     messageStore.readMessage()
   }
+}
+
+function isGroup(val: Group | User) {
+  return (val as Group).name !== undefined
 }
 </script>
 
@@ -27,14 +32,14 @@ function clickFriend(user: User) {
       <n-avatar
         round
         size="small"
-        :src="user.avatar"
+        :src="!isGroup(user) ? (user as User).avatar : '/group.jpg'"
       />
       <div class="ml-10">
-        {{ user.username }}
+        {{ !isGroup(user) ? (user as User).username : (user as Group).name }}
       </div>
     </div>
     <div>
-      <n-badge :value="messageStore.msgList.find(msg => msg.user.id === user.id)?.unReadMessages.length" />
+      <n-badge :value="messageStore.msgList.find(msg => msg.user?.id === user.id)?.unReadMessages.length" />
     </div>
   </div>
 </template>
