@@ -32,7 +32,7 @@ export class MessageService {
   async getMessagesForUser(userId: bigint) {
     return await this.messageRepository.find({
       where: [{ sender: { id: userId } }, { receiver: { id: userId } }],
-      relations: ['sender', 'receiver'],
+      relations: ['sender', 'receiver', 'group'],
       order: { sentAt: 'ASC' },
     });
   }
