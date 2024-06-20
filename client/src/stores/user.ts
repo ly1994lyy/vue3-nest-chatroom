@@ -8,7 +8,7 @@ export const useUserStore = defineStore('user', {
       // 当前登录的用户
       currentUser: {} as User,
       // 当前聊天窗口的对象用户
-      currentMsgUser: {} as User,
+      currentMsgUser: {} as (User | Group),
       // 所有联系人
       friends: [] as (User | Group)[],
       // 所有好友请求
@@ -19,7 +19,7 @@ export const useUserStore = defineStore('user', {
     setCurrentUser(user: User) {
       this.currentUser = user
     },
-    setCurrentMsgUser(user: User) {
+    setCurrentMsgUser(user: User | Group) {
       this.currentMsgUser = user
     },
     setFriends(friends: (User | Group)[]) {

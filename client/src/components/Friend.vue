@@ -4,21 +4,18 @@ import { useMessageStore } from '@/stores/message'
 import { useUserStore } from '@/stores/user'
 import type { Group } from '@/types/group'
 import type { User } from '@/types/users'
+import { isGroup } from '@/utils/util'
 
 const userStore = useUserStore()
 const messageStore = useMessageStore()
 const { socket } = useSocket()
 
 function clickFriend(user: User | Group) {
-  userStore.setCurrentMsgUser(user as User)
+  userStore.setCurrentMsgUser(user)
   if (messageStore.msgList.find(msg => msg.user?.id === user.id)?.unReadMessages.length) {
     socket.emit('readMessage', { userId: userStore.currentUser.id, friendId: user.id })
     messageStore.readMessage()
   }
-}
-
-function isGroup(val: Group | User) {
-  return (val as Group).name !== undefined
 }
 </script>
 

@@ -5,6 +5,9 @@ import type { IMessage } from '@/types/message'
 import { useMessageStore } from '@/stores/message'
 import { useSocket } from '@/hooks/useSocket'
 import { formateDataTime } from '@/utils/data'
+import { isGroup } from '@/utils/util'
+import type { User } from '@/types/users'
+import type { Group } from '@/types/group'
 
 const { socket } = useSocket()
 
@@ -17,14 +20,24 @@ socket.on('receiveMsg', (data) => {
 })
 
 function send() {
-  socket.emit('sendMsg', {
-    sender: userStore.currentUser,
-    receiver: userStore.currentMsgUser,
-    content: msg.value,
-    sentAt: new Date(),
-  } as IMessage, (data: IMessage) => {
-    messageStore.receiveMessage(data)
-  })
+  if (!isGroup(userStore.currentMsgUser)) {
+    socket.emit('sendMsg', {
+      sender: userStore.currentUser,
+      receiver: userStore.currentMsgUser,
+      content: msg.value,
+      sentAt: new Date(),
+    } as IMessage, (data: IMessage) => {
+      messageStore.receiveMessage(data)
+    })
+  }
+  else {
+    socket.emit('sendGroupMsg', {
+      sender: userStore.currentUser,
+      group: userStore.currentMsgUser,
+      content: msg.value,
+      sentAt: new Date(),
+    })
+  }
   msg.value = ''
 }
 </script>
@@ -35,10 +48,10 @@ function send() {
       <n-avatar
         round
         size="small"
-        :src="userStore.currentMsgUser.avatar"
+        :src="!isGroup(userStore.currentMsgUser) ? (userStore.currentMsgUser as User).avatar : '/group.jpg'"
       />
       <div class="ml-10">
-        {{ userStore.currentMsgUser.username }}
+        {{ !isGroup(userStore.currentMsgUser) ? (userStore.currentMsgUser as User).username : (userStore.currentMsgUser as Group).name }}
       </div>
     </div>
     <div>

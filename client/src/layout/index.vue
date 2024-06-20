@@ -6,6 +6,7 @@ import { useUserStore } from '@/stores/user'
 import { useMessageStore } from '@/stores/message'
 import { useSocket } from '@/hooks/useSocket'
 import type { Group } from '@/types/group'
+import { isGroup } from '@/utils/util'
 
 const { socket } = useSocket()
 const message = useMessage()
@@ -63,13 +64,15 @@ function handleUserInfo(info: IUserInfo) {
   const friends = [...info.friends?.filter(i => i.id !== userStore.currentUser.id), ...info.groups]
   userStore.setFriends(friends)
   userStore.friends.forEach((e: User | Group) => {
-    if ((e as User).username !== undefined) {
-      const msg = info.messages.filter(item => item.receiver.id === e.id || item.sender.id === e.id)
+    if (!isGroup(e)) {
+      console.log(e.id)
+      const msg = info.messages.filter(item => (item.receiver.id === e.id || item.sender.id === e.id) && !item.group)
+      console.log(msg)
       const unreadMsg = info.offlineMessage.filter(item => item.sender.id === e.id)
       messageStore.addNewMsgList({ user: e as User, messages: msg, unReadMessages: unreadMsg })
     }
     else {
-      const msg = info.messages.filter(item => item.group?.id === e.id)
+      const msg = info.messages.filter(item => item.group && (item.group.id === e.id))
       const unreadMsg = info.offlineMessage.filter(item => item.group?.id === e.id)
       messageStore.addNewMsgList({ group: e as Group, messages: msg, unReadMessages: unreadMsg })
     }
@@ -97,6 +100,7 @@ onMounted(() => {
       message.success('连接成功')
     })
     socket.emit('online', userStore.currentUser, (data: IUserInfo) => {
+      console.log(data)
       handleUserInfo(data)
     })
   }
