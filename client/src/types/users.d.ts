@@ -1,4 +1,5 @@
 import type { Group } from './group'
+import type { IMessage } from './message'
 
 export interface User {
   id: bigint

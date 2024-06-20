@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { useUserStore } from './user'
 import type { IMessage, IMessageBox } from '@/types/message'
+import { isGroup } from '@/utils/util'
 
 export const useMessageStore = defineStore('message', {
   state: () => {
@@ -12,7 +13,10 @@ export const useMessageStore = defineStore('message', {
   getters: {
     currentMsgList(state) {
       const userStore = useUserStore()
-      return state.msgList.find(e => e.user?.id === userStore.currentMsgUser.id)?.messages || []
+      if (!isGroup(userStore.currentMsgUser))
+        return state.msgList.find(e => e.user?.id === userStore.currentMsgUser.id)?.messages || []
+      else
+        return state.msgList.find(e => e.group?.id === userStore.currentMsgUser.id)?.messages || []
     },
   },
   actions: {

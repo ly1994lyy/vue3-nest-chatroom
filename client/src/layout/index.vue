@@ -65,9 +65,7 @@ function handleUserInfo(info: IUserInfo) {
   userStore.setFriends(friends)
   userStore.friends.forEach((e: User | Group) => {
     if (!isGroup(e)) {
-      console.log(e.id)
-      const msg = info.messages.filter(item => (item.receiver.id === e.id || item.sender.id === e.id) && !item.group)
-      console.log(msg)
+      const msg = info.messages.filter(item => (item.receiver?.id === e.id || item.sender.id === e.id) && !item.group)
       const unreadMsg = info.offlineMessage.filter(item => item.sender.id === e.id)
       messageStore.addNewMsgList({ user: e as User, messages: msg, unReadMessages: unreadMsg })
     }
@@ -100,7 +98,6 @@ onMounted(() => {
       message.success('连接成功')
     })
     socket.emit('online', userStore.currentUser, (data: IUserInfo) => {
-      console.log(data)
       handleUserInfo(data)
     })
   }
