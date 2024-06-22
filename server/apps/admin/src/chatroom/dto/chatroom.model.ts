@@ -17,6 +17,7 @@ export type messageType = {
 
 export type handleFriendType = {
   userId: bigint;
-  friendId: bigint;
+  friendId?: bigint;
+  groupId?: bigint;
   result?: boolean;
 };

@@ -94,7 +94,7 @@ export class ChatroomGateway {
   async sendGroupMsg(@MessageBody() sendInfo: messageType) {
     await this.messageService.sendMessageToGroup(
       sendInfo.sender.id,
-      sendInfo.group.id,
+      sendInfo.group.gId,
       sendInfo.content,
     );
     console.log(sendInfo);
@@ -117,7 +117,7 @@ export class ChatroomGateway {
 
   @SubscribeMessage('readMessage')
   async readMessage(@MessageBody() query: handleFriendType) {
-    await this.redisService.clearOfflineMessages(query.userId, query.friendId);
+    await this.redisService.clearOfflineMessages(query);
   }
 
   @SubscribeMessage('addFriend')

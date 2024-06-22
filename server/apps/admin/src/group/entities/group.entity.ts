@@ -15,7 +15,7 @@ import { Message } from '../../message/entities/message.entity';
 @Entity()
 export class Group {
   @PrimaryGeneratedColumn()
-  id: bigint;
+  gId: bigint;
 
   @Column()
   name: string;

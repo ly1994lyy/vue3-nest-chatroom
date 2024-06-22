@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { RedisClientType, createClient } from 'redis';
 import * as process from 'process';
-import { messageType } from './dto/chatroom.model';
+import { handleFriendType, messageType } from './dto/chatroom.model';
 
 @Injectable()
 export class RedisService {
@@ -44,17 +44,19 @@ export class RedisService {
     return messages.map((msg) => JSON.parse(msg));
   }
 
-  async clearOfflineMessages(userId: bigint, friendId: bigint): Promise<void> {
-    const offlineMsgs = await this.getOfflineMessage(userId);
-    offlineMsgs.forEach(async (e) => {
-      if (e.sender.id === friendId) {
-        await this.redisClient.lRem(
-          `user:${userId}:offlineMessages`,
-          1,
-          JSON.stringify(e),
-        );
+  async clearOfflineMessages(query: handleFriendType): Promise<void> {
+    if (query.friendId) {
+      const offlineMses = await this.getOfflineMessage(query.friendId);
+      for (const e of offlineMses) {
+        if (e.sender.id === query.friendId) {
+          await this.redisClient.lRem(
+            `user:${query.userId}:offlineMessages`,
+            1,
+            JSON.stringify(e),
+          );
+        }
       }
-    });
+    }
   }
 
   async storeAddFriendRequestMessage(

@@ -1,7 +1,9 @@
 import { defineStore } from 'pinia'
 import { useUserStore } from './user'
 import type { IMessage, IMessageBox } from '@/types/message'
-import { isGroup } from '@/utils/util'
+import { isGroup, isUser } from '@/utils/util'
+import type { Group } from '@/types/group'
+import type { User } from '@/types/users'
 
 export const useMessageStore = defineStore('message', {
   state: () => {
@@ -13,10 +15,11 @@ export const useMessageStore = defineStore('message', {
   getters: {
     currentMsgList(state) {
       const userStore = useUserStore()
-      if (!isGroup(userStore.currentMsgUser))
-        return state.msgList.find(e => e.user?.id === userStore.currentMsgUser.id)?.messages || []
-      else
-        return state.msgList.find(e => e.group?.id === userStore.currentMsgUser.id)?.messages || []
+      if (isGroup(userStore.currentMsgUser))
+        return state.msgList.find(e => e.group?.gId === (userStore.currentMsgUser as Group).gId)?.messages || []
+      if (isUser(userStore.currentMsgUser))
+        return state.msgList.find(e => e.user?.id === (userStore.currentMsgUser as User).id)?.messages || []
+      return []
     },
   },
   actions: {
@@ -38,10 +41,19 @@ export const useMessageStore = defineStore('message', {
     },
     readMessage() {
       const userStore = useUserStore()
-      if (userStore.currentMsgUser.id) {
-        const user = this.msgList.find(e => e.user?.id === userStore.currentMsgUser.id)
-        if (user)
-          user.unReadMessages = []
+      if (!isGroup(userStore.currentMsgUser)) {
+        if ((userStore.currentMsgUser as User).id) {
+          const user = this.msgList.find(e => e.user?.id === (userStore.currentMsgUser as User).id)
+          if (user)
+            user.unReadMessages = []
+        }
+      }
+      else {
+        if ((userStore.currentMsgUser as Group).gId) {
+          const group = this.msgList.find(e => e.group?.gId === (userStore.currentMsgUser as Group).gId)
+          if (group)
+            group.unReadMessages = []
+        }
       }
     },
   },

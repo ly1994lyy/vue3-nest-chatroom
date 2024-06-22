@@ -1,5 +1,5 @@
 export interface Group {
-  id: bigint
+  gId: bigint
   name: string
   members: User[]
   createdAt: Date

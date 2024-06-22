@@ -40,10 +40,12 @@ function send() {
   }
   msg.value = ''
 }
+
+const isShow = computed(() => (userStore.currentMsgUser as Group).gId || (userStore.currentMsgUser as User).id)
 </script>
 
 <template>
-  <div v-if="userStore.currentMsgUser.id" class="h-60 b-b-solid b-b-2 border-b-coolGray flex items-center px-20 justify-between">
+  <div v-if="isShow" class="h-60 b-b-solid b-b-2 border-b-coolGray flex items-center px-20 justify-between">
     <div class="flex items-center">
       <n-avatar
         round
@@ -58,7 +60,7 @@ function send() {
       <DeleteFriend />
     </div>
   </div>
-  <div v-if="userStore.currentMsgUser.id" class="flex-1 p-20 overflow-auto">
+  <div v-if="isShow" class="flex-1 p-20 overflow-auto">
     <div v-for="(i, index) in messageStore.currentMsgList" :key="index" class="my-10">
       <div :class="`flex ${i.sender.id === userStore.currentUser.id ? 'flex-row-reverse' : ''}`">
         {{ i.sender.username }}({{ formateDataTime(i.sentAt.toString()) }}):
@@ -68,7 +70,7 @@ function send() {
       </div>
     </div>
   </div>
-  <div v-if="userStore.currentMsgUser.id" class="h-60 px-20 flex items-center">
+  <div v-if="isShow" class="h-60 px-20 flex items-center">
     <n-input v-model:value="msg" round placeholder="发送信息" @keyup.enter="send">
       <template #suffix>
         <n-icon :component="Send" />

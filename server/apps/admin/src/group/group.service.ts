@@ -31,7 +31,7 @@ export class GroupService {
       .getMany();
   }
 
-  async findOneById(id: bigint) {
-    return await this.groupRepository.findOne({ where: { id } });
+  async findOneById(gId: bigint) {
+    return await this.groupRepository.findOne({ where: { gId } });
   }
 }

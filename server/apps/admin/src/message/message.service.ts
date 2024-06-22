@@ -39,9 +39,9 @@ export class MessageService {
 
   async getMessageForGroup(userId: bigint) {
     const groups = await this.groupService.findGroupById(userId);
-    const groupIds = groups.map((group) => group.id);
+    const groupIds = groups.map((group) => group.gId);
     return await this.messageRepository.find({
-      where: [{ group: { id: In(groupIds) } }],
+      where: [{ group: { gId: In(groupIds) } }],
       relations: ['sender', 'group'],
       order: { sentAt: 'ASC' },
     });
