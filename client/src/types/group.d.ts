@@ -1,3 +1,5 @@
+import type { User } from './users'
+
 export interface Group {
   gId: bigint
   name: string

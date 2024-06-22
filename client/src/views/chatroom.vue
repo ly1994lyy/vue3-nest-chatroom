@@ -60,15 +60,18 @@ const isShow = computed(() => (userStore.currentMsgUser as Group).gId || (userSt
       <DeleteFriend />
     </div>
   </div>
-  <div v-if="isShow" class="flex-1 p-20 overflow-auto">
-    <div v-for="(i, index) in messageStore.currentMsgList" :key="index" class="my-10">
-      <div :class="`flex ${i.sender.id === userStore.currentUser.id ? 'flex-row-reverse' : ''}`">
-        {{ i.sender.username }}({{ formateDataTime(i.sentAt.toString()) }}):
-      </div>
-      <div :class="`flex ${i.sender.id === userStore.currentUser.id ? 'flex-row-reverse' : ''}`">
-        {{ i.content }}
+  <div v-if="isShow" class="flex-1 p-20 overflow-auto flex">
+    <div class="flex-1" :class="isGroup(userStore.currentMsgUser) ? 'pr-20' : ''">
+      <div v-for="(i, index) in messageStore.currentMsgList" :key="index" class="my-10">
+        <div :class="`flex ${i.sender.id === userStore.currentUser.id ? 'flex-row-reverse' : ''}`">
+          {{ i.sender.username }}({{ formateDataTime(i.sentAt.toString()) }}):
+        </div>
+        <div :class="`flex ${i.sender.id === userStore.currentUser.id ? 'flex-row-reverse' : ''}`">
+          {{ i.content }}
+        </div>
       </div>
     </div>
+    <Member v-if="isGroup(userStore.currentMsgUser)" />
   </div>
   <div v-if="isShow" class="h-60 px-20 flex items-center">
     <n-input v-model:value="msg" round placeholder="发送信息" @keyup.enter="send">
