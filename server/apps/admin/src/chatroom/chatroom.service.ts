@@ -4,6 +4,7 @@ import { Socket } from 'socket.io';
 import { FriendshipService } from '../friendship/friendship.service';
 import { RedisService } from './redis.service';
 import { GroupService } from '../group/group.service';
+import { Group } from '../group/entities/group.entity';
 
 @Injectable()
 export class ChatroomService {
@@ -35,5 +36,11 @@ export class ChatroomService {
       friends,
       groups,
     };
+  }
+
+  joinGroup(groups: Group[], client: Socket) {
+    groups.forEach((group) => {
+      client.join(`group_${group.gId}`);
+    });
   }
 }

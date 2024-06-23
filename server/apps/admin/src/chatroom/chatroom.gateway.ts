@@ -49,6 +49,7 @@ export class ChatroomGateway {
     await this.redisService.storeSocketId(onlineUser.id, client.id);
     const { friends, messages, offlineMessage, groups } =
       await this.chatroomService.pushUserInfo(onlineUser.id);
+    this.chatroomService.joinGroup(groups, client);
     return {
       friends,
       messages,
@@ -97,7 +98,10 @@ export class ChatroomGateway {
       sendInfo.group.gId,
       sendInfo.content,
     );
-    console.log(sendInfo);
+    this.server.to(`group_${sendInfo.group.gId}`).emit('receiveMsg', {
+      ...sendInfo,
+      sendAt: new Date(),
+    });
   }
 
   @SubscribeMessage('addFriendRequest')
