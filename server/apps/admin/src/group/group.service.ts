@@ -24,21 +24,14 @@ export class GroupService {
   }
 
   async findGroupById(userId: bigint) {
-    const createdGroups = await this.groupRepository
+    return await this.groupRepository
       .createQueryBuilder('group')
       .leftJoinAndSelect('group.createdBy', 'creator')
       .leftJoinAndSelect('group.members', 'member')
+      .innerJoinAndSelect('group.members', 'members')
       .where('creator.id = :userId', { userId })
+      .orWhere('member.id = :userId', { userId })
       .getMany();
-
-    const memberGroups = await this.groupRepository
-      .createQueryBuilder('group')
-      .innerJoinAndSelect('group.members', 'member')
-      .leftJoinAndSelect('group.members', 'members')
-      .where('member.id = :userId', { userId })
-      .getMany();
-
-    return [...createdGroups, ...memberGroups];
   }
 
   async findOneById(gId: bigint) {
