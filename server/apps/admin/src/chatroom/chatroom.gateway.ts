@@ -182,8 +182,19 @@ export class ChatroomGateway {
   }
 
   @SubscribeMessage('createGroup')
-  async createGroup(@MessageBody() createGroupDto: CreateGroupDto) {
+  async createGroup(
+    @MessageBody() createGroupDto: CreateGroupDto,
+    @ConnectedSocket() client: Socket,
+  ) {
     const groups = await this.groupService.createGroup(createGroupDto);
+    await this.chatroomService.pushUserInfo(createGroupDto.createdBy, client);
+    for (const e of createGroupDto.members) {
+      const socketId = await this.redisService.getSocketId(e);
+      if (socketId) {
+        const socket = this.server.sockets.sockets.get(socketId);
+        await this.chatroomService.pushUserInfo(e, socket);
+      }
+    }
     return {
       data: groups,
     };
