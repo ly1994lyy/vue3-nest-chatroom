@@ -24,16 +24,31 @@ export const useMessageStore = defineStore('message', {
   },
   actions: {
     receiveMessage(msg: IMessage) {
-      const user = this.msgList.find(e => e.user?.id === msg.sender.id || e.user?.id === msg.receiver?.id)
-      if (user) {
-        user.messages.push(msg)
+      if (msg.group?.gId) {
+        const group = this.msgList.find(e => e.group?.gId === msg.group?.gId)
+        if (group) {
+          group.messages.push(msg)
+        }
+        else {
+          this.addNewMsgList({
+            group: msg.group,
+            messages: [msg],
+            unReadMessages: [],
+          })
+        }
       }
       else {
-        this.addNewMsgList({
-          user: msg.receiver,
-          messages: [msg],
-          unReadMessages: [],
-        })
+        const user = this.msgList.find(e => e.user?.id === msg.sender.id || e.user?.id === msg.receiver?.id)
+        if (user) {
+          user.messages.push(msg)
+        }
+        else {
+          this.addNewMsgList({
+            user: msg.receiver,
+            messages: [msg],
+            unReadMessages: [],
+          })
+        }
       }
     },
     addNewMsgList(msg: IMessageBox) {
