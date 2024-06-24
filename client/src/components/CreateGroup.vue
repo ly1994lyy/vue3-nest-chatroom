@@ -17,7 +17,7 @@ const form = ref({
 })
 
 function createGroup() {
-  socket.emit('createGroup', { ...form.value, createBy: userStore.currentUser.id })
+  socket.emit('createGroup', { ...form.value, createdBy: userStore.currentUser.id })
   emits('update:modelValue', false)
 }
 </script>
